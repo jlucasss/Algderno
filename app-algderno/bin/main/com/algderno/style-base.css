@@ -1,0 +1,181 @@
+
+/**
+ * 
+ * base: https://colorhunt.co/palette/3829333b5249519872a4b494
+ * 
+ * #382933
+ * #3B5249
+ * #519872
+ * #A4B494
+ * 
+ */
+
+.root {
+
+	-fx-base: #382933;
+	-fx-background-color: #382933;
+	-fx-font-size: 13px;
+
+	-fx-text-fill: #519872;
+
+	-fx-background: derive(-fx-base,0%);
+	-fx-control-inner-background: derive(-fx-base,30%);
+	-fx-control-inner-background-alt: derive(-fx-control-inner-background,-10%);
+
+	-fx-focus-color: #A4B494;
+	-fx-accent: #A4B494;
+
+	-fx-selection-bar: -fx-accent;
+
+}
+
+.popup-rectangle {
+
+	-fx-fill: #382933;
+	-fx-stroke: #A4B494;
+
+}
+
+DialogPane {
+	
+	-fx-base: #382933;
+	-fx-text-fill: #A4B494;
+	-fx-font-size: 14px;
+
+}
+
+TextArea {
+
+	text-area-background: #382933;
+	-fx-text-fill: #A4B494;
+
+}
+
+TextArea .content {
+
+	-fx-background-color: text-area-background;
+
+}
+
+TextField {
+
+	-fx-background-color: #001628;
+	-fx-text-fill: #A4B494;
+
+}
+
+Button {
+	
+	-fx-base: #382933;
+	-fx-text-fill: #A4B494;
+
+}
+
+.button-red {
+	
+	-fx-base: darkred;
+	-fx-text-fill: #A4B494;
+
+}
+
+.button-green {
+	
+	-fx-base: darkgreen;
+	-fx-text-fill: #A4B494;
+	
+}
+
+.button-filter {
+
+	-fx-base: rgb(100,20,50);
+
+}
+
+Label, CheckBox {
+
+	-fx-text-fill: #519872;
+
+}
+
+.title {
+
+	-fx-text-fill: #A4B494;
+	-fx-font-weight: bold;
+	-fx-font-size: 14;
+	
+}
+
+.observation {
+	
+	-fx-font-fill: #A4B494;
+	-fx-font-size: 10.5;
+	
+}
+
+.progress-bar {
+
+	-fx-accent: #519872;
+
+}
+
+.progress-bar > .track {
+
+	-fx-text-box-border: #3B5249;
+	-fx-control-inner-background: #3B5249;
+
+}
+
+MenuBar, Menu, MenuItem {
+	
+	-fx-text-fill: #519872;
+	
+}
+
+.menu-bar {
+
+	-fx-background-color: transparent;
+
+}
+
+.tree-table-view {
+
+	-fx-background-color: transparent;
+
+}
+
+TreeView {
+
+	-fx-background-color: #382933;
+	-fx-control-inner-background: derive(-fx-base,0%);
+
+}
+
+.split-pane:horizontal > .split-pane-divider {
+	-fx-background-color: -fx-box-border, -fx-inner-border-horizontal;
+	-fx-opacity: 0.4;
+}
+
+/*  ToolBar Main.fxml */
+
+.toolbar-main {
+
+	-fx-background-color: #382933;
+
+}
+
+.toolbar-main {
+
+	-fx-base: #382933;
+	-fx-text-fill: #A4B494;
+
+}
+
+/* Footer */
+
+.text-process-bar {
+
+	-fx-font-size: 15px;
+	-fx-text-fill: #382933;
+
+}
+

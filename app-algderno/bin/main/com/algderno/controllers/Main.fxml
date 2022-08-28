@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.effect.Bloom?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Polygon?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="645.0" prefWidth="1184.0" stylesheets="@../style-base.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algderno.controllers.MainController">
+  <children>
+    <MenuBar VBox.vgrow="NEVER">
+      <menus>
+        <Menu mnemonicParsing="false" text="%menu.file">
+          <items>
+            <MenuItem mnemonicParsing="false" onAction="#newWorkbookMIOn" text="%menu.file.new" />
+            <MenuItem mnemonicParsing="false" onAction="#openWorkbookMIOn" text="%menu.file.open" />
+                  <MenuItem mnemonicParsing="false" onAction="#saveAsMIOn" text="%menu.file.saveas" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" onAction="#closeMIOn" text="%menu.file.close" />
+            <SeparatorMenuItem mnemonicParsing="false" onAction="#preferenciasMIOn" />
+            <MenuItem mnemonicParsing="false" onAction="#exitMIOn" text="%menu.file.exit" />
+          </items>
+        </Menu>
+            <Menu mnemonicParsing="false" text="%menu.workbook">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#workbookPropertiesOnMI" text="%menu.workbook.properties" />
+              </items>
+            </Menu>
+        <Menu mnemonicParsing="false" text="%menu.window">
+               <items>
+            <MenuItem mnemonicParsing="false" onAction="#preferenciasMIOn" text="%menu.window.preferences" />
+               </items>
+        </Menu>
+            <Menu mnemonicParsing="false" text="%menu.help">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#aboutMIOn" text="%menu.help.about" />
+               </items>
+            </Menu>
+      </menus>
+    </MenuBar>
+      <AnchorPane prefWidth="978.0">
+         <children>
+            <ToolBar maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="toolbar-main">
+              <items>
+                <Button mnemonicParsing="false" onAction="#newQuestionOn" text="%toolbar.newquestion" />
+                  <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#deleteQuestionOn" styleClass="button-red" text="%toolbar.deletequestion" />
+                  <Separator orientation="VERTICAL" />
+                  <Button mnemonicParsing="false" onAction="#openChartOn" text="%toolbar.chart" />
+                  <Separator orientation="VERTICAL" />
+                  <Button layoutX="111.0" layoutY="10.0" mnemonicParsing="false" onAction="#runCorrectionOn" styleClass="button-green" text="%toolbar.run" />
+                  <Pane fx:id="escapamentPane" />
+              </items>
+            </ToolBar>
+            <ComboBox fx:id="languageCB" onAction="#languageSwapCBOn" prefWidth="150.0" promptText="%combobox.language" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="7.0" />
+         </children>
+      </AnchorPane>
+    <SplitPane dividerPositions="0.17174280879864637" focusTraversable="true" prefHeight="378.0" prefWidth="978.0" VBox.vgrow="ALWAYS">
+      <items>
+        <AnchorPane maxWidth="-Infinity" minWidth="200.0">
+          <children>
+                  <Accordion AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="5.0">
+                    <panes>
+                      <TitledPane text="%accordion.titledpane.tree.files">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <TreeView fx:id="treeTV" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="5.0" />
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                      </TitledPane>
+                      <TitledPane expanded="false" text="%accordion.titledpane.filters">
+                           <content>
+                              <AnchorPane fx:id="filtersAP" prefHeight="200.0" prefWidth="200.0" />
+                           </content>
+                      </TitledPane>
+                    </panes>
+                  </Accordion>
+          </children>
+        </AnchorPane>
+        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="400.0" minWidth="770.0">
+          <children>
+                  <SplitPane dividerPositions="0.6948529411764706" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <items>
+                      <AnchorPane fx:id="chartAP" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
+                        <SplitPane dividerPositions="0.35626283367556466" prefHeight="200.0" prefWidth="200.0">
+                           <items>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                 <children>
+                                    <ScrollPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <content>
+                                          <AnchorPane fx:id="infosAP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+                                       </content>
+                                       <padding>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </padding>
+                                    </ScrollPane>
+                                 </children>
+                              </AnchorPane>
+                              <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <TextField fx:id="searchTF" alignment="CENTER" prefHeight="27.0" prefWidth="658.0" promptText="%textfield.search" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
+                                    <TreeTableView fx:id="resultsTTV" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0">
+                                      <columns>
+                                        <TreeTableColumn fx:id="priorityTTC" maxWidth="1.7976931348623157E308" prefWidth="75.0" text="%table.column.priority" />
+                                        <TreeTableColumn fx:id="nameTTC" maxWidth="1.7976931348623157E308" minWidth="46.0" prefWidth="183.0" text="%table.column.name" />
+                                          <TreeTableColumn fx:id="timeTTC" maxWidth="1.7976931348623157E308" minWidth="46.0" prefWidth="183.0" text="%table.column.lastruntime" />
+                                          <TreeTableColumn fx:id="statusTTC" maxWidth="1.7976931348623157E308" minWidth="46.0" prefWidth="183.0" text="%table.column.status" />
+                                      </columns>
+                                    </TreeTableView>
+                                 </children>
+                              </AnchorPane>
+                           </items>
+                        </SplitPane>
+                    </items>
+                  </SplitPane>
+          </children>
+        </AnchorPane>
+      </items>
+    </SplitPane>
+      <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="900.0" prefHeight="10.0">
+         <children>
+            <AnchorPane prefHeight="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <children>
+                  <ProgressBar fx:id="progressPB" prefHeight="30.0" progress="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <effect>
+                        <Bloom />
+                     </effect></ProgressBar>
+              <Label fx:id="leftL" maxHeight="1.7976931348623157E308" maxWidth="-1.0" styleClass="text-process-bar" text="%text.left" textFill="WHITE" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="2.0">
+                <font>
+                  <Font name="System Bold" size="11.0" fx:id="x3" />
+                </font>
+              </Label>
+              <Label fx:id="rightL" layoutX="900.0" layoutY="11.0" maxWidth="-1.0" styleClass="text-process-bar" text="%text.right" textFill="WHITE" AnchorPane.bottomAnchor="2.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="2.0">
+                     <font>
+                        <Font name="System Bold" size="11.0" fx:id="x4" />
+                     </font>
+                  </Label>
+                  <HBox prefHeight="16.0" prefWidth="100.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="550.0" AnchorPane.topAnchor="2.0">
+                     <children>
+                        <Button fx:id="stopB" disable="true" mnemonicParsing="false" onAction="#stopOn">
+                           <graphic>
+                              <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="18.0" stroke="BLACK" strokeType="INSIDE" width="19.0" />
+                           </graphic>
+                        </Button>
+                        <Button fx:id="pauseB" disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#pauseOn">
+                           <graphic>
+                              <HBox prefHeight="18.0" prefWidth="200.0">
+                                 <children>
+                                    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="18.0" stroke="BLACK" strokeType="INSIDE" width="7.0" />
+                                    <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="18.0" stroke="BLACK" strokeType="INSIDE" width="7.0" />
+                                 </children>
+                              </HBox>
+                           </graphic>
+                        </Button>
+                        <Button fx:id="playB" disable="true" mnemonicParsing="false" onAction="#playOn">
+                           <graphic>
+                              <Polygon fill="DODGERBLUE" points="-50.0, 16.0, -34.0, 7.0, -50.0, 0.0" stroke="BLACK" strokeType="INSIDE" />
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+            </AnchorPane>
+         </children>
+      </AnchorPane>
+  </children>
+</VBox>

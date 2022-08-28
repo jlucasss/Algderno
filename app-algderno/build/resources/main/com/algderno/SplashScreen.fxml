@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.effect.Bloom?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="layoutVB" stylesheets="@style-base.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algderno.controllers.SplashScreenController">
+   <children>
+      <ProgressBar fx:id="progressPB" maxWidth="1.7976931348623157E308">
+         <effect>
+            <Bloom />
+         </effect>
+      </ProgressBar>
+      <ImageView fx:id="imageIV" fitHeight="199.0" fitWidth="290.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+         </image>
+      </ImageView>
+   </children>
+</VBox>

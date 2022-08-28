@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.algderno.io.writer.JSONWriterTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-06-26T02:06:19" hostname="LAPTOP-4NP2I4HJ" time="0.063">
+  <properties/>
+  <testcase name="saveNull()" classname="com.algderno.io.writer.JSONWriterTest" time="0.003"/>
+  <testcase name="saveComplete()" classname="com.algderno.io.writer.JSONWriterTest" time="0.059"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

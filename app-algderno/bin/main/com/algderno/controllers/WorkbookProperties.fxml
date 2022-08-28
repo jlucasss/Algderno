@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.shape.Line?>
+
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="554.0" stylesheets="@../style-base.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algderno.controllers.WorkbookPropertiesController">
+   <children>
+      <GridPane layoutX="124.0" layoutY="85.0" AnchorPane.bottomAnchor="41.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="88.0" minWidth="10.0" prefWidth="50.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="149.0" minWidth="10.0" prefWidth="139.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="148.0" minWidth="10.0" prefWidth="133.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="148.0" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="84.0" minWidth="10.0" prefWidth="50.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Button mnemonicParsing="false" onAction="#restoreAllOn" text="%button.restoreall" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+            <Label text="%label.name" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="nameTF" promptText="Workbook1..." GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Label text="%label.solutionfilepath" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <TextField fx:id="fileSolutionTF" promptText="../Solutionjava" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <Button mnemonicParsing="false" onAction="#selectSolutionOn" text="%button.selectsolution" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+            <Label text="%label.rootfolderpath" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <TextField fx:id="rootTF" promptText="../workbook1/" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+            <Button mnemonicParsing="false" onAction="#selectRootOn" text="%button.selectrootfolder" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+            <Label styleClass="title" text="%label.title" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2" />
+         </children>
+      </GridPane>
+      <Line endX="554.0" endY="345.5" startY="345.5" strokeWidth="0.5" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+      <ToolBar layoutX="26.0" layoutY="355.0" maxWidth="1.7976931348623157E308" nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <items>
+            <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#saveOn" styleClass="button-green" text="%button.save" />
+          <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cancelOn" styleClass="button-red" text="%button.cancel" />
+        </items>
+      </ToolBar>
+   </children>
+</AnchorPane>
