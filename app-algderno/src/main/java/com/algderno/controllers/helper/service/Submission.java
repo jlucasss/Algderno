@@ -49,9 +49,7 @@ public class Submission {
 
 		idsSize = this.mapExercises.size();
 		
-		this.progress = new ProgressSubmission(idsSize);//idsSelected.size());
-
-		//this.data.sorted(sortData());
+		this.progress = new ProgressSubmission(idsSize);
 
 	}
 
@@ -63,6 +61,8 @@ public class Submission {
 				workbook.getPathRoot());
 
 		int numQuestions = 0, countExercises = 0;
+		long averageLastRuntime = 0;
+		boolean allCorrects = true;
 		
 		Exercise exercises[] = new Exercise[this.mapExercises.size()]; // Is necessary prepare array to toArray
 		this.mapExercises.values().toArray(exercises);
@@ -70,8 +70,15 @@ public class Submission {
 		
 		for (Exercise currentExercise : exercises) {
 
-			if (! selectedWorkbook.getMapData().containsKey(currentExercise.getName())) // If not selected Question
+			if (! selectedWorkbook.getMapData().containsKey(currentExercise.getName())) { // If not selected Question
+
+				averageLastRuntime += currentExercise.getLastRuntime();
+				
+				if (allCorrects) // Verify the not tested
+					allCorrects = currentExercise.isResultCorrect();
+				
 				continue;
+			}
 			
 			countExercises++;
 			
@@ -81,7 +88,21 @@ public class Submission {
 
 			testQuestionsAll(currentExercise, countExercises, numQuestions);
 
+			if (allCorrects) // Verify the tested
+				allCorrects = currentExercise.isResultCorrect();
+			
+			averageLastRuntime += currentExercise.getLastRuntime();
+			
 		}
+
+		averageLastRuntime = averageLastRuntime / workbook.getMapData().size();
+
+		workbook.setLastRuntime(averageLastRuntime);
+		workbook.setResultCorrect(allCorrects); // If all exercises is corrects
+		
+		// Too for update table
+		selectedWorkbook.setLastRuntime(averageLastRuntime);
+		selectedWorkbook.setResultCorrect(allCorrects);
 
 		return workbook;
 
@@ -94,53 +115,50 @@ public class Submission {
 		currentExercise.getMapData().values().toArray(questions);
 		sortByPrority(questions);
 		
-		int count = 0;
+		long averageLastRuntime = 0;
+		boolean allCorrects = true;
+		
+		int priority = 0;
 		for (Question currentQuestion : questions) {
 			
-			count = currentQuestion.getPriority();
+			priority = currentQuestion.getPriority();
 			
-			if (! selectedWorkbook.getMapData().get(currentExercise.getName()).getMapData().containsKey(currentQuestion.getName()) ) // If not selected Question
+			if (! selectedWorkbook.getMapData().get(currentExercise.getName()).getMapData().containsKey(currentQuestion.getName()) ) { // If not selected Question
+				
+				if (allCorrects) // Verify the not tested
+					allCorrects = currentQuestion.isResultCorrect();
+				
+				averageLastRuntime += currentQuestion.getLastRuntime();
+				
 				continue;
+			}
 			
 			this.progress.updateProgressQuestion(currentQuestion.getName(), 
-					count, numQuestions, StatusProgress.PROCESSING);
+					priority, numQuestions, StatusProgress.PROCESSING);
 
 			if (testQuestion(currentExercise.getName(), currentQuestion)) {
 
 				this.progress.updateProgressQuestion(currentQuestion.getName(), 
-						count, numQuestions, StatusProgress.TESTED);
+						priority, numQuestions, StatusProgress.TESTED);
 
 
 			} else
 				this.progress.updateProgressQuestion(currentQuestion.getName(), 
-						count, numQuestions, StatusProgress.ERROR);
+						priority, numQuestions, StatusProgress.ERROR);
 
+			averageLastRuntime += currentQuestion.getLastRuntime();
+			
+			if (allCorrects) // Verify the tested
+				allCorrects = currentQuestion.isResultCorrect();
+			
 		}
 		
+		averageLastRuntime = averageLastRuntime / currentExercise.getMapData().size();
+
+		// Update data of the currentExercise
 		
-/*		for (int j = 1; numQuestions > j; j++) { // j is id question list of questions
-
-			indexQuestion = idsSelected.get(idExerciseList).get(j);
-
-			if (! selectedWorkbook.getMapData().get(currentExercise.getName()).getMapData().containsKey(currentQuestion.getName()) ) // If not selected Question
-				continue;
-			
-			currentQuestion = currentExercise.getMapData().get(indexQuestion);
-
-			this.progress.updateProgressQuestion(currentQuestion.getName(), 
-					(j+1), numQuestions, StatusProgress.PROCESSING);
-
-			if (testQuestion(currentExercise.getName(), currentQuestion)) {
-
-				this.progress.updateProgressQuestion(currentQuestion.getName(), 
-						(j+1), numQuestions, StatusProgress.TESTED);
-
-
-			} else
-				this.progress.updateProgressQuestion(currentQuestion.getName(), 
-						(j+1), numQuestions, StatusProgress.ERROR);
-
-		}*/
+		currentExercise.setLastRuntime(averageLastRuntime);
+		currentExercise.setResultCorrect(allCorrects); // If all questions is corrects
 		
 	}
 

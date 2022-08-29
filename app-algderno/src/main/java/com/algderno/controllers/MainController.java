@@ -219,22 +219,19 @@ public class MainController extends AbstractController {
 
 			SimpleGroup selecteds = helper.createlistIdsSelected();
 
+			// Update data line "workbooks" of the table
+			Group<?> groupWorkbooks = (Group<?>) resultsTTV.getRoot().getValue();
+			groupWorkbooks.setLastRuntime(0);
+			groupWorkbooks.setResultCorrect(true);
+			
 			if (selecteds.mapWorkbook.size() > 0) {
 
 				pauseB.setDisable(false);
 				stopB.setDisable(false);
 
-				selecteds.mapWorkbook.values().forEach((value) -> {
-					
-					System.out.println("selected value = " + value.toString());
-					
-					System.out.println("Size = " + value.getMapData().size());
-					
-					runSelecteds(value);
-					
-					System.out.println("------------ Runned");
-				});
-
+				for (Workbook value : selecteds.mapWorkbook.values())
+					runSelecteds(value, groupWorkbooks);
+				
 			} else {
 
 				helper.updateProgressBarGroup(0.00F, resources.getString("text.finished"), "Ok");
@@ -257,7 +254,7 @@ public class MainController extends AbstractController {
 
 	}
 
-	private void runSelecteds(Workbook selectedWorkbook) {
+	private void runSelecteds(Workbook selectedWorkbook, Group<?> groupWorkbooks) {
 		
 		this.service = new SubmissionThread(progressPB, selectedWorkbook,
 				resultsTTV, logger, this);
@@ -272,9 +269,18 @@ public class MainController extends AbstractController {
 			resultsTTV.getRoot().valueProperty().unbind();
 			filteredData = new FilteredList<TreeItem<Group<?>>>(resultsTTV.getRoot().getChildren());
 			
+			groupWorkbooks.setLastRuntime(
+					groupWorkbooks.getLastRuntime() 
+						+ 
+					(selectedWorkbook.getLastRuntime() / resultsTTV.getRoot().getChildren().size())
+				);
+			
+			if (groupWorkbooks.isResultCorrect())
+				groupWorkbooks.setResultCorrect(selectedWorkbook.isResultCorrect());
+			
 			// Set in table
 System.out.println("Size out = " + filteredData.size());
-			//resultsTTV.getRoot().getChildren().setAll(filteredData);
+
 			resultsTTV.refresh();
 
 			//helper.updateChart();
