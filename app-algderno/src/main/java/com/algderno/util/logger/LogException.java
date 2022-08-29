@@ -13,9 +13,11 @@ import java.util.ResourceBundle;
 import com.algderno.App;
 import com.algderno.util.SimpleAlerts;
 
+import javafx.application.Platform;
+
 public class LogException extends AbstractLog {
 
-	private Exception lastException;
+	private Throwable lastThrowable;
 	private ResourceBundle resources;
 	private static SimpleAlerts ALERTS = App.getAlerts();
 
@@ -28,15 +30,15 @@ public class LogException extends AbstractLog {
 
 		list.addLast(str);
 
-		this.lastException = null;
+		this.lastThrowable = null;
 
 		return this;
 
 	}
 
-	public AbstractLog add(String str, Exception e) {
+	public AbstractLog add(String str, Throwable e) {
 
-		this.lastException = e;
+		this.lastThrowable = e;
 
 		str = str + "Error menssage:" + e.getMessage();
 
@@ -49,12 +51,14 @@ public class LogException extends AbstractLog {
 	@Override
 	public void show() {
 
-		ALERTS.errorWithException(
-				this.getResource("exception.title"), 
-				this.getResource("exception.subtitle"),
-				this.getLast() + "\n" + this.getResource("exception.message"), 
-				this.lastException);
-
+		Platform.runLater(() -> {
+				ALERTS.errorWithException(
+					getResource("exception.title"), 
+					getResource("exception.subtitle"),
+					getLast() + "\n" + getResource("exception.message"), 
+					lastThrowable);
+		});
+		
 	}
 
 	private String getResource(String str) {

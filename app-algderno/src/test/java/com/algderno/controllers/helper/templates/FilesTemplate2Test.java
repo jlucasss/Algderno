@@ -50,7 +50,7 @@ class FilesTemplate2Test {
 				pathInput = "/input/",
 				pathOutput = "/output/";
 
-		int maxRuntime = 1;
+		int maxRuntime = 0;
 		
 		Question question1 = new Question(0, "A",
 				pathInput+"A", pathOutput+"A", 0, false, maxRuntime);
@@ -116,9 +116,9 @@ class FilesTemplate2Test {
 				pathOutput = "/output/";
 
 		Question question1 = new Question(0, "1",
-				pathInput+"1", pathOutput+"1", 0, false, 1);
+				pathInput+"1", pathOutput+"1", 0, false, 0);
 		Question question2 = new Question(1, "2",
-				pathInput+"2", pathOutput+"2", 0, false, 1);
+				pathInput+"2", pathOutput+"2", 0, false, 0);
 
 		Map<String, Question> listCorrect = new HashMap<>(); 
 		listCorrect.put("1", question1);

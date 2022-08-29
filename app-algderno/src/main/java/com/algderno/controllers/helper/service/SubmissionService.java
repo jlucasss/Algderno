@@ -67,7 +67,7 @@ public abstract class SubmissionService extends Service<Map<String, Exercise>> {
 					submission.testExercisesAll();
 
 				} catch (Exception e) {
-
+					
 					logger.getExceptions().add(
 						main.getResources().getString("exception.unable.verify.question"), e).show();
 					e.printStackTrace();

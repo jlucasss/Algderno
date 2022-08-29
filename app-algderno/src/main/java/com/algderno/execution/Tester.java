@@ -37,7 +37,7 @@ public class Tester {
 		this.data = new DataPerson(pathFileSolution,
 				pathQuestions, "", pathOutput);
 
-		System.out.println("DATAPERSON = \n" + pathFileSolution + "\n" + pathQuestions  + "\n" + pathOutput + "\n");
+		//System.out.println("DATAPERSON = \n" + pathFileSolution + "\n" + pathQuestions  + "\n" + pathOutput + "\n");
 	
 		this.submit = new Submeter(data);
 		//submit.setFileWithMemoryUsed(false);
@@ -70,7 +70,7 @@ public class Tester {
 
 		question.setResultCorrect(checkEqualAnswers);
 		
-		System.out.println(question.toString());
+		//System.out.println(question.toString());
 
 	}
 

@@ -226,9 +226,13 @@ public class MainController extends AbstractController {
 
 				selecteds.mapWorkbook.values().forEach((value) -> {
 					
-					System.out.println(value.toString());
+					System.out.println("selected value = " + value.toString());
+					
+					System.out.println("Size = " + value.getMapData().size());
 					
 					runSelecteds(value);
+					
+					System.out.println("------------ Runned");
 				});
 
 			} else {
@@ -269,8 +273,8 @@ public class MainController extends AbstractController {
 			filteredData = new FilteredList<TreeItem<Group<?>>>(resultsTTV.getRoot().getChildren());
 			
 			// Set in table
-
-			resultsTTV.getRoot().getChildren().setAll(filteredData);
+System.out.println("Size out = " + filteredData.size());
+			//resultsTTV.getRoot().getChildren().setAll(filteredData);
 			resultsTTV.refresh();
 
 			//helper.updateChart();
@@ -282,6 +286,19 @@ public class MainController extends AbstractController {
 			infosMain.updateAllWorkbookInfos(resultsTTV.getRoot());
 			
 		});
+		
+		this.service.setOnFailed((failed) -> {
+
+			progressPB.progressProperty().unbind();
+			//leftL.textProperty().unbind();
+			
+			Throwable e = failed.getSource().getException();
+			
+			logger.getExceptions().add(resources.getString("exception.unexpected.error.occurred"), e).show();
+			e.printStackTrace();
+			
+		});
+
 		
 		this.service.start();
 	}

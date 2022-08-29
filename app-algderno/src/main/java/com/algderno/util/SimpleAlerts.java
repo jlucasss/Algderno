@@ -92,7 +92,7 @@ public class SimpleAlerts {
 	}
 
 	public void errorWithException(String title, String subTitle,
-			String message, Exception e) {
+			String message, Throwable e) {
 
 		baseAlert(title, subTitle, message, AlertType.ERROR);
 

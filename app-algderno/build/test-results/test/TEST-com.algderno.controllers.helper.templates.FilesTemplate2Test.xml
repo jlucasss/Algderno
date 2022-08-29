@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.algderno.controllers.helper.templates.FilesTemplate2Test" tests="6" skipped="0" failures="0" errors="0" timestamp="2022-06-26T02:06:17" hostname="LAPTOP-4NP2I4HJ" time="0.022">
+<testsuite name="com.algderno.controllers.helper.templates.FilesTemplate2Test" tests="6" skipped="0" failures="0" errors="0" timestamp="2022-08-28T18:04:27" hostname="LAPTOP-4NP2I4HJ" time="0.02">
   <properties/>
-  <testcase name="getListExercisesOutputCorrect()" classname="com.algderno.controllers.helper.templates.FilesTemplate2Test" time="0.006"/>
+  <testcase name="getListExercisesOutputCorrect()" classname="com.algderno.controllers.helper.templates.FilesTemplate2Test" time="0.007"/>
   <testcase name="removeExtensionListCorrectWithoutExtension()" classname="com.algderno.controllers.helper.templates.FilesTemplate2Test" time="0.002"/>
   <testcase name="findExerciseCorrect()" classname="com.algderno.controllers.helper.templates.FilesTemplate2Test" time="0.002"/>
-  <testcase name="removeExtensionListCorretWithExtension()" classname="com.algderno.controllers.helper.templates.FilesTemplate2Test" time="0.003"/>
-  <testcase name="checkEqualityOfListsCorrect()" classname="com.algderno.controllers.helper.templates.FilesTemplate2Test" time="0.002"/>
+  <testcase name="removeExtensionListCorretWithExtension()" classname="com.algderno.controllers.helper.templates.FilesTemplate2Test" time="0.001"/>
+  <testcase name="checkEqualityOfListsCorrect()" classname="com.algderno.controllers.helper.templates.FilesTemplate2Test" time="0.001"/>
   <testcase name="createListQuestionsCorrect()" classname="com.algderno.controllers.helper.templates.FilesTemplate2Test" time="0.003"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

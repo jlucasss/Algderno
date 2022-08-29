@@ -28,7 +28,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="645.0" prefWidth="1184.0" stylesheets="@../style-base.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algderno.controllers.MainController">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="645.0" prefWidth="1350.0" stylesheets="@../style-base.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algderno.controllers.MainController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -124,6 +124,7 @@
                                     <TextField fx:id="searchTF" alignment="CENTER" prefHeight="27.0" prefWidth="658.0" promptText="%textfield.search" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
                                     <TreeTableView fx:id="resultsTTV" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0">
                                       <columns>
+                                          <TreeTableColumn prefWidth="75.0" />
                                         <TreeTableColumn fx:id="priorityTTC" maxWidth="1.7976931348623157E308" prefWidth="75.0" text="%table.column.priority" />
                                         <TreeTableColumn fx:id="nameTTC" maxWidth="1.7976931348623157E308" minWidth="46.0" prefWidth="183.0" text="%table.column.name" />
                                           <TreeTableColumn fx:id="timeTTC" maxWidth="1.7976931348623157E308" minWidth="46.0" prefWidth="183.0" text="%table.column.lastruntime" />

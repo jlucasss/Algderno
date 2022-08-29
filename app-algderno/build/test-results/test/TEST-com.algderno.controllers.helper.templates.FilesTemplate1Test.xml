@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.algderno.controllers.helper.templates.FilesTemplate1Test" tests="5" skipped="0" failures="0" errors="0" timestamp="2022-06-26T02:06:16" hostname="LAPTOP-4NP2I4HJ" time="0.13">
+<testsuite name="com.algderno.controllers.helper.templates.FilesTemplate1Test" tests="5" skipped="0" failures="0" errors="0" timestamp="2022-08-28T18:04:26" hostname="LAPTOP-4NP2I4HJ" time="0.376">
   <properties/>
-  <testcase name="createQuestionComplete()" classname="com.algderno.controllers.helper.templates.FilesTemplate1Test" time="0.091"/>
-  <testcase name="findExercisesComplete()" classname="com.algderno.controllers.helper.templates.FilesTemplate1Test" time="0.029"/>
+  <testcase name="createQuestionComplete()" classname="com.algderno.controllers.helper.templates.FilesTemplate1Test" time="0.351"/>
+  <testcase name="findExercisesComplete()" classname="com.algderno.controllers.helper.templates.FilesTemplate1Test" time="0.015"/>
   <testcase name="findQuestionsComplete()" classname="com.algderno.controllers.helper.templates.FilesTemplate1Test" time="0.002"/>
   <testcase name="createListExercisesComplete()" classname="com.algderno.controllers.helper.templates.FilesTemplate1Test" time="0.002"/>
-  <testcase name="hasCorrespondentComplete()" classname="com.algderno.controllers.helper.templates.FilesTemplate1Test" time="0.003"/>
+  <testcase name="hasCorrespondentComplete()" classname="com.algderno.controllers.helper.templates.FilesTemplate1Test" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

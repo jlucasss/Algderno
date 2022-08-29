@@ -63,11 +63,10 @@ public class Submission {
 				workbook.getPathRoot());
 
 		int numQuestions = 0, countExercises = 0;
-
-		Exercise exercises[] = (Exercise[]) mapExercises.values().toArray();
-		sortByPrority(exercises);
 		
-		System.out.println("numExercises = " + exercises.length);
+		Exercise exercises[] = new Exercise[this.mapExercises.size()]; // Is necessary prepare array to toArray
+		this.mapExercises.values().toArray(exercises);
+		sortByPrority(exercises);
 		
 		for (Exercise currentExercise : exercises) {
 
@@ -90,10 +89,9 @@ public class Submission {
 
 	private void testQuestionsAll(Exercise currentExercise, int idExerciseList, int numQuestions) throws Exception {
 		
-		System.out.println("numQuestion = " + numQuestions);
-		
 		// Sort values by Priority
-		Question questions[] = (Question[]) currentExercise.getMapData().values().toArray();
+		Question questions[] = new Question[currentExercise.getMapData().size()];
+		currentExercise.getMapData().values().toArray(questions);
 		sortByPrority(questions);
 		
 		int count = 0;

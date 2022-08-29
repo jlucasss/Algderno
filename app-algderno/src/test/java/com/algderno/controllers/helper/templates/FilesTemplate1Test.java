@@ -50,7 +50,7 @@ class FilesTemplate1Test {
 		String exercise1 = "/1/",
 				exercise2 = "/2/";
 		
-		int maxRuntime = 1;
+		int maxRuntime = 0;
 
 		Question question1 = new Question(0, "1",
 				exercise1+"1.in", exercise1+"1.sol", 0, false, maxRuntime);
