@@ -55,8 +55,8 @@ public class FilesTemplate1 extends AbstractFilesTemplate {
 
 		if (namesExercises.length > 0) {
 
-			Arrays.sort(namesExercises);
-
+			Arrays.sort(namesExercises, (o1, o2) -> precedenceNumberNameFile(o1, o2));
+			
 			File fileExercise;
 
 			File[] arrayFiles;
@@ -93,8 +93,37 @@ public class FilesTemplate1 extends AbstractFilesTemplate {
 
 	}
 
+	private int precedenceNumberNameFile(File file, File file2) {
+		
+		String f1 = file.getName();
+		String f2 = file2.getName();
+		
+		if (f1.contains("."))
+			f1 = f1.substring(0, file.getName().indexOf("."));
+		
+		if (f2.contains("."))
+			f2 = f2.substring(0, file2.getName().indexOf("."));
+		
+		if (!isNumber(f1) || !isNumber(f2))
+			return f1.compareTo(f2);
+		
+		return Integer.compare(Integer.parseInt(f1), Integer.parseInt(f2));
+		
+	}
+	
+	private boolean isNumber(String str) {
+		try {
+			Integer.parseInt(str);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
+
 	protected ObservableMap<String, Question> findQuestions(String nameExercise, File[] arrayFiles) throws FileNotFoundException {
 
+		Arrays.sort(arrayFiles, (o1, o2) -> precedenceNumberNameFile(o1, o2));
+		
 		ObservableMap<String, Question> map = FXCollections.observableHashMap();
 
 		String local = "/" + nameExercise + "/";

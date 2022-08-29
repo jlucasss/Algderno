@@ -277,13 +277,10 @@ public class MainController extends AbstractController {
 			
 			if (groupWorkbooks.isResultCorrect())
 				groupWorkbooks.setResultCorrect(selectedWorkbook.isResultCorrect());
-			
-			// Set in table
-System.out.println("Size out = " + filteredData.size());
 
 			resultsTTV.refresh();
 
-			//helper.updateChart();
+			helper.updateChart();
 
 			helper.updateProgressBarGroup(0.00F, resources.getString("text.finished"), "Ok");
 

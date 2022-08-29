@@ -1,4 +1,4 @@
-# Algderno
+# Algderno (Under development)
 
 ![Logo](app-algderno/src/main/resources/com/algderno/images/logo.svg)
 
@@ -6,13 +6,9 @@ Algderno is an application with a graphical interface that aims to facilitate th
 
 It follows the idea of `Workbook`, where a `Workbook` contains a `List of Exercises` and an `Exercise` contains a `List of Questions`, however, for all questions, it only contains a solution file.
 
+![Printscreen](app-algderno/src/main/resources/com/algderno/images/printscreen.png)
+
 Note: This project is in an early version, although it works, there may be a better way to do it.
-
-To learn more, visit page: [algderno.github.io](https://)
-
-## Installation
-
-Donwload [file](https://), install and run.
 
 ## Usage
 

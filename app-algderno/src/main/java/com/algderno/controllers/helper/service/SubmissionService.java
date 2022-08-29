@@ -16,7 +16,6 @@ import com.algderno.util.logger.SimpleLogger;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.MapChangeListener;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.control.ProgressBar;
@@ -57,6 +56,9 @@ public abstract class SubmissionService extends Service<Map<String, Exercise>> {
 
 	@Override
 	protected Task<Map<String, Exercise>> createTask() {
+
+		onListenerListQuestionUpdated();
+		
 		this.task = new Task<>() {
 
 			@Override
@@ -90,8 +92,6 @@ public abstract class SubmissionService extends Service<Map<String, Exercise>> {
 		//Property<ObservableList<Question>> property = new SimpleObjectProperty<>(this.submission.getData());
 		//resultsTTV.getRoot().valueProperty().bind(property);
 
-		onListenerListQuestionUpdated();
-
 		return task;
 	}
 
@@ -113,8 +113,6 @@ public abstract class SubmissionService extends Service<Map<String, Exercise>> {
 
 	private void onListenerListQuestionUpdated() {
 
-		Map<String, Integer> mapExerciseIds = new HashMap<>();
-		
 		// Try to find index of Workbook in TreeTableView resultsTTV
 		int i = 0, workbookId = -1;
 		for (TreeItem<Group<?>> itemWorkbook : main.resultsTTV.getRoot().getChildren()) { // For each workbook
@@ -132,59 +130,14 @@ public abstract class SubmissionService extends Service<Map<String, Exercise>> {
 		
 		MainController.helper.getChartController().cleanDataMain(); // Clear chart
 		
-		this.submission.workbook.getMapData().addListener(listenerExercises(mapExerciseIds, workbookId)); // When any happen in data list
+		// Add new Question in Chart
+		submission.addListener((Question q) ->
+				Platform.runLater(() ->
+					MainController.helper.getChartController().addDataInMain(q.getName(), q))
+			);
 
 	}
 	
-	/* Add to when has change(add, remove...) Exercise */
-	private MapChangeListener<String, Exercise> listenerExercises(Map<String, Integer> mapExerciseIds, int workbookId) {
-	
-		return (changeE) -> listenerQuestions(changeE, mapExerciseIds, workbookId);
-		
-	}
-
-	/* Add to when has change(add, remove...) Question */
-	private MapChangeListener<String, Question> listenerQuestions(
-				MapChangeListener.Change<? extends String, ? extends Exercise> changeE,
-				Map<String, Integer> mapExerciseIds, 
-				int workbookId) {
-		
-		return (changeQ) -> {
-
-				Platform.runLater(() -> {
-					
-					String keyE = changeE.getValueAdded().getName();
-					Question valueQ = changeQ.getValueAdded();
-					
-					if (!mapExerciseIds.containsKey(keyE)) { // If Exercise not exist
-						
-						// Add new Exercise
-						main.resultsTTV.getRoot().getChildren().get(workbookId)
-								.getChildren().add( new TreeItem<Group<?>>(changeE.getValueAdded()) );
-						
-						// Save id
-						mapExerciseIds.put(keyE, 
-												main.resultsTTV.getRoot().getChildren().get(workbookId)
-													.getChildren().size() );
-					}
-
-					// Add Question
-					main.resultsTTV.getRoot().getChildren().get(workbookId)
-							.getChildren().get(mapExerciseIds.get(keyE))
-							.getChildren().add(new TreeItem<Group<?>>(valueQ));
-					
-					
-					// Add new Question in Chart
-					MainController.helper.getChartController().addDataInMain( keyE,
-						valueQ
-					);
-					
-				});			
-			
-		};
-		
-	}
-
 	@Override
 	protected void succeeded() {
 

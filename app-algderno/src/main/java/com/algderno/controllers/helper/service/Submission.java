@@ -5,11 +5,12 @@ package com.algderno.controllers.helper.service;
 *
 * This class load items in table while verify the Questions.
 *
-* @author JosÃ© Lucas dos Santos da Silva
+* @author José Lucas dos Santos da Silva
 *
 */
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -28,13 +29,12 @@ import javafx.collections.ObservableMap;
 
 public class Submission {
 
-	//private List<List<Integer>> idsSelected;
 	private int idsSize;
 	private ObservableMap<String, Exercise> mapExercises;
 	private HashMap<String, List<Question>> nonexistent;
-	//private Map<String, Exercise> data;
 	public final Workbook workbook, selectedWorkbook;
 	private Tester submit;
+	private List<ListenerSubmissionQuestion> listListener;
 	
 	private ProgressSubmission progress;
 
@@ -46,6 +46,7 @@ public class Submission {
 		this.mapExercises = workbook.getMapData();
 		this.submit = new Tester();
 		this.nonexistent = new HashMap<>();
+		this.listListener = new ArrayList<>();
 
 		idsSize = this.mapExercises.size();
 		
@@ -53,6 +54,14 @@ public class Submission {
 
 	}
 
+	public void addListener(ListenerSubmissionQuestion l) {
+		this.listListener.add(l);
+	}
+	
+	public List<ListenerSubmissionQuestion> getListListener() {
+		return this.listListener;
+	}
+	
 	public Workbook testExercisesAll() throws Exception {
 
 		//data.clear();
@@ -130,6 +139,9 @@ public class Submission {
 				
 				averageLastRuntime += currentQuestion.getLastRuntime();
 				
+				for (int i = 0; this.listListener.size() > i; i++)
+					this.listListener.get(i).changed(currentQuestion);
+				
 				continue;
 			}
 			
@@ -150,6 +162,9 @@ public class Submission {
 			
 			if (allCorrects) // Verify the tested
 				allCorrects = currentQuestion.isResultCorrect();
+			
+			for (int i = 0; this.listListener.size() > i; i++)
+				this.listListener.get(i).changed(currentQuestion);
 			
 		}
 		

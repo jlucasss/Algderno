@@ -30,6 +30,25 @@ public class DataPopup {
 				lastRuntime + "\";" + 
 				exerciseName);
 	}
+	
+	@Override
+	public String toString() {
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("Exercise = ");
+		sb.append(this.getExerciseName());
+		sb.append("\n");
+		sb.append("Question = ");
+		sb.append(this.getQuestionName());
+		sb.append("\n");
+		sb.append("Last Runtime = ");
+		sb.append(this.getLastRuntime());
+		
+		return sb.toString();
+		
+		//return super.toString();
+	}
 
 }
 
