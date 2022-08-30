@@ -35,13 +35,19 @@ public class JSONWriter {
 			Writer writer = new Writer(localSave + "/" + workbook.getName() + ".json");
 
 			JSONObject exercises = new JSONObject(workbook.getMapData());//convertExercisesToJSON();
-
+			
+			System.out.println("Workbook has " + workbook.getMapData().values().size() + " items");
+			
+			workbook.getMapData().values().forEach((ex) -> {
+				System.out.println(ex.getName() + " has " + ex.getMapData().size() + "items");
+			});
+			
 			JSONObject output = new JSONObject();
 			output.put("Name", workbook.getName());
 			output.put("PathFileSolution", workbook.getPathFileSolution());
 			output.put("PathRoot", workbook.getPathRoot());
 			output.put("ModelSelected", workbook.getModelSelected());
-			output.put("Exercise", exercises);
+			output.put("Exercises", exercises);
 
 			writer.writeLines( Arrays.asList(output.toString()) );
 

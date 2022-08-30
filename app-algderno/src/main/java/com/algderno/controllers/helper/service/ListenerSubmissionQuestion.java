@@ -12,6 +12,6 @@ import com.algderno.models.Question;
 
 public interface ListenerSubmissionQuestion {
 
-	public void changed(Question q);
+	public void changed(String exerciseName, Question q);
 	
 }

@@ -449,7 +449,7 @@ public class HelperMainController {
 		for (Workbook workbook : mapWorkbooks.values()) { // For each Workbook
 			
 			treeWorkbook = new TreeItem<>(workbook);
-			
+
 			for (Exercise exercise : workbook.getMapData().values()) { // For each Exercise
 			
 				treeExercise = new TreeItem<>(exercise);
@@ -527,12 +527,16 @@ public class HelperMainController {
 
 	public void saveWorkbook(String nameWorkbook) {
 
+		System.out.println("Saving = " + nameWorkbook);
+		
 		DirectoryChooser directoryChooser = new DirectoryChooser();
 		directoryChooser.setTitle(
 				main.getResources().getString("text.saveas") );
 
 		File diretorySelected = directoryChooser.showDialog(App.localStage);
 
+		System.out.println("File directory = " + directoryChooser);
+		
 		if (diretorySelected != null)
 			try {
 				

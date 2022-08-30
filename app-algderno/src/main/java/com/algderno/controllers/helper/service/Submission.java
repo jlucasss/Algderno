@@ -140,7 +140,7 @@ public class Submission {
 				averageLastRuntime += currentQuestion.getLastRuntime();
 				
 				for (int i = 0; this.listListener.size() > i; i++)
-					this.listListener.get(i).changed(currentQuestion);
+					this.listListener.get(i).changed(currentExercise.getName(), currentQuestion);
 				
 				continue;
 			}
@@ -164,7 +164,7 @@ public class Submission {
 				allCorrects = currentQuestion.isResultCorrect();
 			
 			for (int i = 0; this.listListener.size() > i; i++)
-				this.listListener.get(i).changed(currentQuestion);
+				this.listListener.get(i).changed(currentExercise.getName(), currentQuestion);
 			
 		}
 		

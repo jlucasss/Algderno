@@ -131,9 +131,9 @@ public abstract class SubmissionService extends Service<Map<String, Exercise>> {
 		MainController.helper.getChartController().cleanDataMain(); // Clear chart
 		
 		// Add new Question in Chart
-		submission.addListener((Question q) ->
+		submission.addListener((String exerciseName, Question q) ->
 				Platform.runLater(() ->
-					MainController.helper.getChartController().addDataInMain(q.getName(), q))
+					MainController.helper.getChartController().addDataInMain(exerciseName, q))
 			);
 
 	}

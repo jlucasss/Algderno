@@ -2,10 +2,8 @@
 package com.algderno.controllers.helper.data;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.algderno.models.Exercise;
 import com.algderno.models.Question;
@@ -54,11 +52,9 @@ public class SeriesQuestion {
 
 		// Extract data of mapExercises
 		
-		Iterator<Entry<String, Exercise>> iterator = mapExercises.entrySet().iterator();
-		
-		while (iterator.hasNext()) // Exercises
-			iterator.next().getValue().getMapData()
-						.forEach((key, value) -> addCurrentData(key, value));
+		for (Exercise exercise : mapExercises.values())
+			for (Question question : exercise.getMapData().values())
+				addCurrentData(exercise.getName(), question);
 		
 	}
 
@@ -74,7 +70,7 @@ public class SeriesQuestion {
 
 		getData().add(
 			new XYChart.Data<String, Number>(
-				question.getName() + " - " + exerciseName, 
+				"Exercise: " + exerciseName + "\nQuestion: " + question.getName(), 
 				question.getLastRuntime()
 			)
 		);

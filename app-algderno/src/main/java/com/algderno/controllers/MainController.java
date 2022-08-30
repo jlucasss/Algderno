@@ -211,55 +211,53 @@ public class MainController extends AbstractController {
 	@FXML
 	private void runCorrectionOn() {
 
-		if (mapWorkbooks != null) {
-
-			helper.updateProgressBarGroup(ProgressIndicator.INDETERMINATE_PROGRESS, 
-					resources.getString("text.testing.solution"),
-					resources.getString("text.after.finalized") );
-
-			SimpleGroup selecteds = helper.createlistIdsSelected();
-
-			// Update data line "workbooks" of the table
-			Group<?> groupWorkbooks = (Group<?>) resultsTTV.getRoot().getValue();
-			groupWorkbooks.setLastRuntime(0);
-			groupWorkbooks.setResultCorrect(true);
-			
-			if (selecteds.mapWorkbook.size() > 0) {
-
-				pauseB.setDisable(false);
-				stopB.setDisable(false);
-
-				for (Workbook value : selecteds.mapWorkbook.values())
-					runSelecteds(value, groupWorkbooks);
-				
-			} else {
-
-				helper.updateProgressBarGroup(0.00F, resources.getString("text.finished"), "Ok");
-
-				logger.getErrors().add(
-						resources.getString("error.selected.nothing")).show();
-
-				return;
-
-			}
-
-		} else {
+		if (mapWorkbooks == null) {
 
 			logger.getErrors().add(
 					resources.getString("error.not.opened.workbook")).show();
 
 			helper.updateProgressBarGroup(0.00F, resources.getString("text.finished"), "Ok");
 
+			return;
+			
 		}
+
+		SimpleGroup selecteds = helper.createlistIdsSelected();
+
+		if (selecteds.mapWorkbook.size() <= 0) {
+
+			helper.updateProgressBarGroup(0.00F, resources.getString("text.finished"), "Ok");
+
+			logger.getErrors().add(
+					resources.getString("error.selected.nothing")).show();
+
+			return;
+
+		}
+		
+		helper.updateProgressBarGroup(ProgressIndicator.INDETERMINATE_PROGRESS, 
+				resources.getString("text.testing.solution"),
+				resources.getString("text.after.finalized") );
+		
+		// Update data line "workbooks" of the table
+		Group<?> groupWorkbooks = (Group<?>) resultsTTV.getRoot().getValue();
+		groupWorkbooks.setLastRuntime(0);
+		groupWorkbooks.setResultCorrect(true);
+		
+		pauseB.setDisable(false);
+		stopB.setDisable(false);
+
+		for (Workbook value : selecteds.mapWorkbook.values())
+			runSelecteds(value, groupWorkbooks);
 
 	}
 
 	private void runSelecteds(Workbook selectedWorkbook, Group<?> groupWorkbooks) {
-		
-		this.service = new SubmissionThread(progressPB, selectedWorkbook,
+
+		SubmissionThread service = new SubmissionThread(progressPB, selectedWorkbook,
 				resultsTTV, logger, this);
 
-		this.service.setOnSucceeded((success) -> {
+		service.setOnSucceeded((success) -> {
 
 			progressPB.progressProperty().unbind();
 			//leftL.textProperty().unbind();
@@ -290,10 +288,9 @@ public class MainController extends AbstractController {
 			
 		});
 		
-		this.service.setOnFailed((failed) -> {
+		service.setOnFailed((failed) -> {
 
 			progressPB.progressProperty().unbind();
-			//leftL.textProperty().unbind();
 			
 			Throwable e = failed.getSource().getException();
 			
@@ -302,8 +299,12 @@ public class MainController extends AbstractController {
 			
 		});
 
+		service.setOnCancelled((caceled) -> {
+			logger.getInfos().add("Cancelled.").show();
+		});
 		
-		this.service.start();
+		service.start();
+		
 	}
 
 	/* MENU */
@@ -411,7 +412,7 @@ public class MainController extends AbstractController {
 
 	@FXML
 	private void saveAsMIOn() {
-
+		
 		helper.updateProgressBarGroup(ProgressIndicator.INDETERMINATE_PROGRESS, 
 				resources.getString("text.saving"), 
 						resources.getString("text.after.finalized") );
@@ -420,7 +421,13 @@ public class MainController extends AbstractController {
 		
 		List<String> options = new ArrayList<>();
 		options.add(resources.getString("messages.option.all"));
-		options.addAll(Arrays.asList((String[])mapWorkbooks.keySet().toArray()));
+		
+		System.out.println("SaveAs = " + mapWorkbooks.size());
+		
+		String[] setOfKeys = new String[mapWorkbooks.keySet().size()];// This variable is necessary because casting(Object to String) not work
+		mapWorkbooks.keySet().toArray(setOfKeys);
+		
+		options.addAll(Arrays.asList(setOfKeys));
 		
 		String nameWorkbook =App.getAlerts()
 									.boxChoice(resources.getString("messages.choice"), 
@@ -442,6 +449,8 @@ public class MainController extends AbstractController {
 
 		helper.updateProgressBarGroup(0.00F, resources.getString("text.finished"), "Ok");
 
+		logger.getInfos().add("Saved!").show();
+		
 	}
 
 

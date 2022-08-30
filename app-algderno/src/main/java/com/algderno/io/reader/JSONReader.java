@@ -31,7 +31,7 @@ public class JSONReader {
 				EnumModels.valueOf(content.getString("ModelSelected"));
 
 		ObservableMap<String, Exercise> exercises = recoverExercisesMap(
-					content.get("Exercise").toString()
+					content.get("Exercises").toString()
 				);
 
 		Workbook workbook = new Workbook
