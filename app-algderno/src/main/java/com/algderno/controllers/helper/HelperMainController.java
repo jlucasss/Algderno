@@ -9,8 +9,6 @@ package com.algderno.controllers.helper;
  */
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.algderno.App;
 import com.algderno.controllers.ChartController;
@@ -22,7 +20,6 @@ import com.algderno.models.Exercise;
 import com.algderno.models.Group;
 import com.algderno.models.Question;
 import com.algderno.models.Workbook;
-import com.algderno.models.util.SimpleGroup;
 import com.algderno.util.SetCheckBoxTreeView;
 import com.algderno.util.ShowScreen;
 import com.algderno.util.logger.SimpleLogger;
@@ -56,8 +53,9 @@ public class HelperMainController {
 				main.getResources().getString("text.no.pending.processing"), "Ok");
 
 		if (MainController.mapWorkbooks != null)
-			MainController.mapWorkbooks.clear();
-		MainController.mapWorkbooks = new HashMap<>();
+			MainController.mapWorkbooks.getMapData().clear();
+		else
+			MainController.mapWorkbooks = new Group<Workbook>(0, "Workbooks") {};
 
 		main.filteredData = null;
 
@@ -68,8 +66,15 @@ public class HelperMainController {
 		punctuatedTreeView = null;
 
 		itemBranchLevel1 = null;
+	
+		try {
 		
-		main.infosMain = new InfosMain(main.infosAP, main.getResources());
+			main.infosMain = new InfosMain(main.infosAP, this.logger);
+		
+		} catch (Exception e) {
+			logger.getExceptions().add(main.getResources().getString("exception.could.not.open.screen"), e);
+			e.printStackTrace();
+		}
 		
 		if (!main.chartAP.getChildren().isEmpty())
 			main.chartAP.getChildren().clear();
@@ -98,7 +103,7 @@ public class HelperMainController {
 				
 				String nameExercise = child.getParent().getValue(),
 						nameWorkbook = child.getParent().getParent().getValue();
-				Question question = (Question) MainController.mapWorkbooks.get(nameWorkbook).getMapData()
+				Question question = (Question) MainController.mapWorkbooks.getMapData().get(nameWorkbook).getMapData()
 																.get(nameExercise).getMapData()
 																.get(child.getValue());
 				
@@ -283,13 +288,29 @@ public class HelperMainController {
 
 	private SetCheckBoxTreeView<String> punctuatedTreeView;
 
-	public void openWorkbooks() {
+	public void openWorkbook(Workbook workbookNew) {
 
 		try {
 
-			fillTreeView();
+			// Add new workbook
+			MainController.mapWorkbooks.getMapData().put(workbookNew.getName(), workbookNew);
 			
-			fillTreeTableView(MainController.mapWorkbooks);
+			// Verify result correct of all
+			
+			boolean isAllWorkbooks = true;
+			
+			for (Workbook w : MainController.mapWorkbooks.getMapData().values())
+				isAllWorkbooks = isAllWorkbooks && w.isResultCorrect();
+			
+			MainController.mapWorkbooks.setResultCorrect(isAllWorkbooks);
+			
+			// Update data
+			
+			fillTreeView(workbookNew);
+			
+			main.treeTP.setExpanded(true);
+			
+			fillTreeTableView(workbookNew);
 			
 			punctuatedTreeView = new SetCheckBoxTreeView<>();
 
@@ -298,18 +319,15 @@ public class HelperMainController {
 
 			// Opens screen
 
-			openChart();
-			openFiltersMain();
+			openChart(workbookNew);
+			openFiltersMain(workbookNew);
 
+			MainController.infosMain.updateGroupWorkbooks(main.treeTV.getRoot());
+			
 			// Update progress
 
 			main.progressPB.setProgress(1.00F);
 
-			// Update Infos
-			
-			MainController.infosMain.updateAllWorkbookInfos( main.resultsTTV.getRoot() );
-
-			
 			Thread.sleep(500);
 
 		} catch (Exception e) {
@@ -325,70 +343,73 @@ public class HelperMainController {
 	}
 
 	private ChartController chartController;
+	private Object filtersMainController;
 
-	private void openChart() {
+	private void openChart(Workbook workbookNew) {
 
-		ShowScreen screen = new ShowScreen(new Stage());
-
-		Parent parent = null;
-
-		try {
-
-			parent = screen.findFXML("Chart.fxml", "chart");
-
-			this.chartController = (ChartController) screen.getLoader().getController();
-
-			this.chartController.initChartWithWorkbook((Workbook) MainController.mapWorkbooks.values().toArray()[0]);
+		if (this.chartController == null) {
 			
-		} catch (Exception e) {
-
-			logger.getExceptions().add(
-					main.getResources().getString("exception.could.not.open.file") + " " + "Chart.fxml", e);
-			e.printStackTrace();
-
+			try {
+				ShowScreen screen = new ShowScreen(new Stage());
+	
+				Parent parent = null;
+	
+				parent = screen.findFXML("Chart.fxml", "chart");
+	
+				this.chartController = (ChartController) screen.getLoader().getController();
+	
+				AnchorPane.setBottomAnchor(parent, 0.0);
+				AnchorPane.setTopAnchor(parent, 0.0);
+				AnchorPane.setLeftAnchor(parent, 0.0);
+				AnchorPane.setRightAnchor(parent, 0.0);
+	
+				// Add fxml of chart in main
+				main.chartAP.getChildren().add(parent);
+				
+			} catch (Exception e) {
+	
+				logger.getExceptions().add(
+						main.getResources().getString("exception.could.not.open.file") + " " + "Chart.fxml", e);
+				e.printStackTrace();
+	
+			}
+			
 		}
-
-		AnchorPane.setBottomAnchor(parent, 0.0);
-		AnchorPane.setTopAnchor(parent, 0.0);
-		AnchorPane.setLeftAnchor(parent, 0.0);
-		AnchorPane.setRightAnchor(parent, 0.0);
-
-		// Add fxml of chart in main
-		main.chartAP.getChildren().add(parent);
-
+		
+		this.chartController.initChartWithWorkbook(workbookNew);
+		
 	}
 
 	//private FiltersMainController filtersMainController;
 
-	private void openFiltersMain() {
+	private void openFiltersMain(Workbook workbookNew) {
 
-		ShowScreen screen = new ShowScreen(new Stage());
-
-		Parent parent = null;
-
-		try {
-
-			parent = screen.findFXML("FiltersMain.fxml", "filtersmain");
-
-			@SuppressWarnings("unused")
-			FiltersMainController filtersMainController = (FiltersMainController) screen.getLoader().getController();
-
-		} catch (Exception e) {
-
-			logger.getExceptions().add(
-					main.getResources().getString("exception.could.not.open.file") + " " + "FiltersMain.fxml", e);
-			e.printStackTrace();
-
+		if (this.filtersMainController == null) {
+			try {
+				ShowScreen screen = new ShowScreen(new Stage());
+	
+				Parent parent = null;
+	
+				parent = screen.findFXML("FiltersMain.fxml", "filtersmain");
+	
+				this.filtersMainController = (FiltersMainController) screen.getLoader().getController();
+	
+				AnchorPane.setBottomAnchor(parent, 0.0);
+				AnchorPane.setTopAnchor(parent, 0.0);
+				AnchorPane.setLeftAnchor(parent, 0.0);
+				AnchorPane.setRightAnchor(parent, 0.0);
+	
+				// Add fxml of chart in main
+				main.filtersAP.getChildren().add(parent);
+	
+			} catch (Exception e) {
+	
+				logger.getExceptions().add(
+						main.getResources().getString("exception.could.not.open.file") + " " + "FiltersMain.fxml", e);
+				e.printStackTrace();
+	
+			}
 		}
-
-		AnchorPane.setBottomAnchor(parent, 0.0);
-		AnchorPane.setTopAnchor(parent, 0.0);
-		AnchorPane.setLeftAnchor(parent, 0.0);
-		AnchorPane.setRightAnchor(parent, 0.0);
-
-		// Add fxml of chart in main
-		main.filtersAP.getChildren().add(parent);
-
 	}
 
 	public void updateChart() {
@@ -397,21 +418,30 @@ public class HelperMainController {
 		//chartController.updateChart();
 	}
 
-	public void updateTreeView() {
+	/*public void updateTreeView(Workbook workbookNew) {
 
-		fillTreeView();
+		fillTreeView(workbookNew);
 
-	}
+	}*/
 
-	private void fillTreeView() {
+	private void fillTreeView(Workbook workbookNew) {
 
-		itemBranchLevel1 = new CheckBoxTreeItem<>("Workbooks");
-		itemBranchLevel1.setExpanded(true);
+		TreeItem<String> root = main.treeTV.getRoot();
+		
+		if (root == null || root.getChildren().size() == 0) {
+		
+			itemBranchLevel1 = new CheckBoxTreeItem<>("Workbooks");
+			itemBranchLevel1.setExpanded(true);
+	
+			itemBranchLevel1.getChildren().add(createCheckBoxTreeItemExerciseAndQuestion(workbookNew));
+	
+			main.treeTV.setRoot(itemBranchLevel1);
+			
+		} else {
 
-		for (Workbook workbook : MainController.mapWorkbooks.values()) // For each Workbook
-			itemBranchLevel1.getChildren().add(createCheckBoxTreeItemExerciseAndQuestion(workbook));
-
-		main.treeTV.setRoot(itemBranchLevel1);
+			itemBranchLevel1.getChildren().add(createCheckBoxTreeItemExerciseAndQuestion(workbookNew));
+			
+		}
 
 		main.treeTV.refresh();
 
@@ -438,40 +468,42 @@ public class HelperMainController {
 		
 	}
 
-	private void fillTreeTableView(Map<String, Workbook> mapWorkbooks) {
-		
-		ObservableList<TreeItem<Group<?>>> listQuestions = FXCollections.observableArrayList();
-		
-		// Fill list
-
-		TreeItem<Group<?>> treeWorkbook, treeExercise;
-		
-		for (Workbook workbook : mapWorkbooks.values()) { // For each Workbook
-			
-			treeWorkbook = new TreeItem<>(workbook);
-
-			for (Exercise exercise : workbook.getMapData().values()) { // For each Exercise
-			
-				treeExercise = new TreeItem<>(exercise);
-				
-				for (Question question : exercise.getMapData().values()) // For each Question
-					treeExercise.getChildren().add(new TreeItem<Group<?>>(question)); // Add Question
-				
-				treeWorkbook.getChildren().add(treeExercise); // Add Exercise
-			}
-			listQuestions.add(treeWorkbook); // Add Workbook
-		}
-		
-		// Fill filter
-
-		MainController.filteredData = new FilteredList<TreeItem<Group<?>>>(listQuestions);
+	private void fillTreeTableView(Workbook workbookNew) {
 
 		// Set in table
 
 		if (main.resultsTTV.getRoot() == null)
-			main.resultsTTV.setRoot(new TreeItem<Group<?>>(new Workbook(-1, "Workbooks")));
+			main.resultsTTV.setRoot(new TreeItem<Group<?>>(MainController.mapWorkbooks));
 		
-		main.resultsTTV.getRoot().getChildren().setAll(MainController.filteredData);
+		// Fill list
+
+		TreeItem<Group<?>> treeWorkbook = new TreeItem<>(workbookNew), treeExercise;
+
+		for (Exercise exercise : workbookNew.getMapData().values()) { // For each Exercise
+		
+			treeExercise = new TreeItem<>(exercise);
+			
+			for (Question question : exercise.getMapData().values()) // For each Question
+				treeExercise.getChildren().add(new TreeItem<Group<?>>(question)); // Add Question
+			
+			treeWorkbook.getChildren().add(treeExercise); // Add Exercise
+		}
+		
+		// Fill filter
+
+		if (MainController.filteredData == null) {
+			
+			ObservableList<TreeItem<Group<?>>> listQuestions = FXCollections.observableArrayList();
+			listQuestions.add(treeWorkbook); // Add Workbook
+
+			MainController.filteredData = new FilteredList<TreeItem<Group<?>>>(listQuestions);
+			
+			main.resultsTTV.getRoot().getChildren().setAll(MainController.filteredData);
+			
+		} else 
+			main.resultsTTV.getRoot().getChildren().add(treeWorkbook);
+			//MainController.filteredData.add(treeWorkbook);
+
 		main.resultsTTV.refresh();
 
 		addListenerSearch();
@@ -540,12 +572,12 @@ public class HelperMainController {
 		if (diretorySelected != null)
 			try {
 				
-				new JSONWriter(MainController.mapWorkbooks.get(nameWorkbook)).save(diretorySelected.toString());
+				new JSONWriter(MainController.mapWorkbooks.getMapData().get(nameWorkbook)).save(diretorySelected.toString());
 			
 			} catch (Exception e) {
 				
 				logger.getExceptions().add(main.getResources().getString("exception.could.not.write.file") 
-						+ diretorySelected.toString() + MainController.mapWorkbooks.get(nameWorkbook).getName(), e).show();
+						+ diretorySelected.toString() + MainController.mapWorkbooks.getMapData().get(nameWorkbook).getName(), e).show();
 				e.printStackTrace();
 			
 			}
@@ -611,37 +643,40 @@ public class HelperMainController {
 	}*/
 
 	/* Create list of String as describe where to find Question selected */
-	public SimpleGroup createlistIdsSelected() {
-
-		SimpleGroup selectedNames = new SimpleGroup();
+/*	public List<TreeItem<String>> createlistIdsSelected() {
+		
+		SelectedsList selectedNames = new SelectedsList();
 		
 		for (TreeItem<String> itemWorkbook : itemBranchLevel1.getChildren()) // For each Workbook
 			for (TreeItem<String> itemExercise : itemWorkbook.getChildren()) // For each Exercise
 				for (TreeItem<String> itemQuestion : itemExercise.getChildren()) // For each Question
 					if (((CheckBoxTreeItem<String>)itemQuestion).isSelected()) // If is selected
-						selectedNames.add(itemWorkbook.getValue(),
-											itemExercise.getValue(),
-											itemQuestion.getValue());
+						selectedNames.add(itemWorkbook,
+											itemExercise,
+											itemQuestion);
 				
 				
 
 		return selectedNames;
-		
-	}
+	}*/
 	
 	/* DELETE */
 
-	public void deleteFromDisc(boolean delete, String nameWorkbook, String nameExercise, String nameQuestion) {
+	public void deleteFromDisc(boolean delete, TreeItem<String> selected) {
 
+		String nameWorkbook = selected.getParent().getValue(),
+			nameExercise = selected.getParent().getValue(), 
+			nameQuestion = selected.getValue();
+		
 		if (delete) {
 
-			new File(MainController.mapWorkbooks.get(nameWorkbook).getPathRoot() +
-					MainController.mapWorkbooks.get(nameWorkbook).getMapData().get(nameExercise)
+			new File(MainController.mapWorkbooks.getMapData().get(nameWorkbook).getPathRoot() +
+					MainController.mapWorkbooks.getMapData().get(nameWorkbook).getMapData().get(nameExercise)
 						.getMapData().get(nameQuestion).getMapData()
 						.get("pathInput")).deleteOnExit();
 
-			new File(MainController.mapWorkbooks.get(nameWorkbook).getPathRoot() +
-					MainController.mapWorkbooks.get(nameWorkbook).getMapData().get(nameExercise)
+			new File(MainController.mapWorkbooks.getMapData().get(nameWorkbook).getPathRoot() +
+					MainController.mapWorkbooks.getMapData().get(nameWorkbook).getMapData().get(nameExercise)
 						.getMapData().get(nameQuestion).getMapData()
 						.get("pathOutputCorrect")).deleteOnExit();
 
@@ -649,16 +684,43 @@ public class HelperMainController {
 
 	}
 
-	public void removeFromTreeView(String nameWorkbook, String nameExercise, String nameQuestion) {
+	public void removeFromTreeView(TreeItem<String> selectedQuestion) {
 
-		MainController.mapWorkbooks.get(nameWorkbook).getMapData().get(nameExercise)
-					.getMapData().remove(nameQuestion);
+		TreeItem<String> itemExercise = selectedQuestion.getParent();
+		TreeItem<String> itemWorkbook = itemExercise.getParent();
 
-		if (MainController.mapWorkbooks.get(nameWorkbook).getMapData().get(nameExercise)
-					.getMapData().size() == 0)//Remove exercise if it has no more questions
-			MainController.mapWorkbooks.get(nameWorkbook).getMapData().remove(nameExercise);
+		String nameWorkbook = itemExercise.getValue(),
+				nameExercise = itemExercise.getValue(), 
+				nameQuestion = selectedQuestion.getValue();
+			
+		// Remove Question
 
-		updateTreeView();
+		itemExercise.getChildren().remove(selectedQuestion);
+		
+		MainController.mapWorkbooks.getMapData().get(nameWorkbook).getMapData().get(nameExercise)
+		.getMapData().remove(nameQuestion);
+		
+		// Remove Exercise (if necessary)
+		
+		if (itemExercise.getChildren().isEmpty()) {
+			
+			itemWorkbook.getChildren().remove(itemExercise);
+
+			MainController.mapWorkbooks.getMapData().get(nameWorkbook).getMapData().remove(nameExercise);
+
+		}
+		
+		// Remove Workbook (if necessary)
+		
+		if (itemWorkbook.getChildren().isEmpty()) {
+			
+			main.treeTV.getRoot().getChildren().remove(itemWorkbook);
+			
+			MainController.mapWorkbooks.getMapData().remove(nameWorkbook);
+
+		}
+
+		main.treeTV.refresh();
 
 	}
 

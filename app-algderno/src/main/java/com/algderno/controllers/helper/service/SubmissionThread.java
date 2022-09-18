@@ -12,18 +12,12 @@ public class SubmissionThread extends SubmissionService {
 
 	private volatile boolean suspended = false, stopped = true;
 
-	public SubmissionThread(ProgressBar progressBar,
-			Workbook selectedWorkbook,
-			TreeTableView<Group<?>> resultsTV,
-			SimpleLogger logger,
-			MainController main) {
-
-		super(progressBar,
-			selectedWorkbook,
-			resultsTV,
-			logger,
-			main);
-
+	public SubmissionThread(SimpleLogger logger,
+			MainController main,
+			ProgressBar progressBar,
+			TreeTableView<Group<?>> resultsTTV,
+			Workbook[] arrayWorkbooks) {
+		super(logger, main, progressBar, resultsTTV, arrayWorkbooks);
 	}
 
 	@Override

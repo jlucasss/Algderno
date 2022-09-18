@@ -4,11 +4,14 @@ package com.algderno.controllers.helper.data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
+import com.algderno.controllers.ChartController;
 import com.algderno.models.Exercise;
 import com.algderno.models.Question;
 import com.algderno.models.util.DataPopup;
 
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
@@ -22,8 +25,12 @@ public class SeriesQuestion {
 
 	private List<DataPopup> datasPopup;
 
-	public SeriesQuestion() {
+	private ResourceBundle resources;
 
+	public SeriesQuestion(ResourceBundle resources) {
+
+		this.resources = resources;
+		
 		setSeries(new Series<>());
 
 		setDatasPopup(new ArrayList<>());
@@ -33,8 +40,10 @@ public class SeriesQuestion {
 
 	}
 
-	public SeriesQuestion(String name, Map<String, Exercise> mapExercises) {
+	public SeriesQuestion(String name, Map<String, Exercise> mapExercises, ResourceBundle resources) {
 
+		this.resources = resources;
+		
 		setSeries(new Series<>());
 
 		this.series.setName(name);
@@ -54,26 +63,36 @@ public class SeriesQuestion {
 		
 		for (Exercise exercise : mapExercises.values())
 			for (Question question : exercise.getMapData().values())
-				addCurrentData(exercise.getName(), question);
+				addCurrentData(exercise, question);
 		
 	}
 
-	public int addCurrentData(String exerciseName, Question question) {
+	private int addCurrentData(Exercise exercise, Question question) {
 
-		this.datasPopup.add(
-				new DataPopup(
-					question.getName(), 
-					question.getLastRuntime(), 
-					exerciseName
-				)
+		DataPopup dataPopupNew = new DataPopup(
+			question.getName(), 
+			question.getLastRuntime(), 
+			exercise.getName(),
+			question.isResultCorrect(),
+			resources
 		);
-
-		getData().add(
-			new XYChart.Data<String, Number>(
-				"Exercise: " + exerciseName + "\nQuestion: " + question.getName(), 
-				question.getLastRuntime()
-			)
+		
+		dataPopupNew.questionNameProperty().bind(question.nameProperty());
+		dataPopupNew.exerciseNameProperty().bind(exercise.nameProperty());
+		dataPopupNew.lastRuntimeProperty().bind(question.lastRuntimeProperty());
+		dataPopupNew.correctProperty().bind(question.resultCorrectProperty());
+		
+		this.datasPopup.add(dataPopupNew);
+		
+		Data<String, Number> dataNew = new XYChart.Data<String, Number>(
+			ChartController.textExercise + " " + dataPopupNew.getExerciseName() 
+					+ "\n" + ChartController.textQuestion + " " + dataPopupNew.getQuestionName(), 
+			question.getLastRuntime()
 		);
+	
+		dataNew.YValueProperty().bind(question.lastRuntimeProperty());
+		
+		getData().add(dataNew);
 
 		return getData().size()-1; // return index
 
@@ -81,7 +100,7 @@ public class SeriesQuestion {
 
 	/* Tooltip */
 
-	public void installTooltip(XYChart.Data<String, Number> data, DataPopup dataPopup) throws Exception {
+	private void installTooltip(XYChart.Data<String, Number> data, DataPopup dataPopup) throws Exception {
 
 		if (data.getNode() == null)
 			throw new NullPointerException("Node of XYChart.Data is null. Add in one chart first!");
@@ -89,9 +108,23 @@ public class SeriesQuestion {
 		Tooltip tooltip = new Tooltip(dataPopup.toString());
 		Tooltip.install(data.getNode(), tooltip);
 
+		// When open chart
+		data.nodeProperty().get().setStyle( 
+				dataPopup.isCorrect() ?
+						"-fx-background-color: DARKGREEN;" : 
+							"-fx-background-color: DARKRED;");
+		
+		
+		// When update questions
+		dataPopup.correctProperty().addListener(
+				(ObservableValue<? extends Boolean> obs, Boolean bOld, Boolean bNew) ->
+					data.nodeProperty().get().setStyle( 
+						bNew ? "-fx-background-color: DARKGREEN;" : "-fx-background-color: DARKRED;")
+		);
+		
 	}
 
-	public void installTooltip(int index) throws Exception {
+	private void installTooltip(int index) throws Exception {
 
 		installTooltip(getData().get(index), getDatasPopup().get(index));
 

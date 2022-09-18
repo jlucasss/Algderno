@@ -116,7 +116,7 @@ public class SplashScreenController extends AbstractController {
 			// Define method of close
 			App.mainScreenStage.setOnCloseRequest((e) -> mainController.closeMain());
 
-			App.mainScreenStage.setScene(new Scene(parent, 1350, 645));
+			App.mainScreenStage.setScene(new Scene(parent, 1350, 690));
 
 			App.mainScreenStage.getIcons().add(new Image(iconInputStream));
 						

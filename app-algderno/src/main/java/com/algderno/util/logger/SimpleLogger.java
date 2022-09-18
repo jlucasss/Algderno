@@ -1,5 +1,8 @@
 package com.algderno.util.logger;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  *
  * This class contains methods about error logs.
@@ -12,8 +15,6 @@ package com.algderno.util.logger;
  */
 
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import com.algderno.App;
@@ -37,7 +38,7 @@ public class SimpleLogger {
 		this.warning = createWarning();
 		this.error = createError();
 		this.exception = new LogException(resources);
-
+		
 	}
 
 	/* Info */
@@ -50,7 +51,7 @@ public class SimpleLogger {
 
 				ALERTS.simpleMessage(getResource("info.title"), 
 						getResource("info.subtitle"),
-						this.getLast(), 
+						this.getLast().getMessage(), 
 						AlertType.INFORMATION);	
 
 			}
@@ -72,7 +73,7 @@ public class SimpleLogger {
 
 				ALERTS.simpleMessage(getResource("warning.title"), 
 						getResource("warning.subtitle"),
-						this.getLast(), 
+						this.getLast().getMessage(), 
 						AlertType.WARNING);
 
 			}
@@ -94,8 +95,8 @@ public class SimpleLogger {
 
 				ALERTS.simpleMessage(getResource("error.title"), 
 						getResource("error.subtitle"),
-						this.getLast(), 
-						AlertType.ERROR);	
+						this.getLast().getMessage(), 
+						AlertType.ERROR);
 
 			}
 
@@ -111,28 +112,6 @@ public class SimpleLogger {
 	public LogException getExceptions() {
 		return this.exception;
 	}
-
-	/* All */
-
-	/*
-		Maybe...
-
-
-	private AbstractLog createAbstraction(String typeName, AlertType alertType) {
-		return new AbstractLog() {
-
-			@Override
-			public void show() {
-
-				simpleMessage(getResource(typeName + ".title"), 
-						getResource(typeName + ".subtitle"),
-						this.getLast(), 
-						alertType);	
-
-			}
-
-		};
-	}*/
 
 	private String getResource(String str) {
 

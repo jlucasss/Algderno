@@ -86,7 +86,7 @@ public class FilesController extends AbstractController {
 
 		}
 
-		switch (MainController.mapWorkbooks.get(namesSelecteds[2]).getModelSelected()) {
+		switch (MainController.mapWorkbooks.getMapData().get(namesSelecteds[2]).getModelSelected()) {
 
 		case Model1:
 

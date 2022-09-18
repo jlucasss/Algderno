@@ -3,11 +3,9 @@ package com.algderno.controllers.helper.service;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import com.algderno.controllers.MainController;
-import com.algderno.models.Exercise;
 import com.algderno.models.Group;
 import com.algderno.models.Question;
 import com.algderno.models.Workbook;
@@ -22,52 +20,69 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 
-public abstract class SubmissionService extends Service<Map<String, Exercise>> {
+public abstract class SubmissionService extends Service<Workbook[]> {
 
 	private ProgressBar progressBar;
 	public TreeTableView<Group<?>> resultsTTV;
 
 	protected SimpleLogger logger;
 	public MainController main;
-	protected Task<Map<String, Exercise>> task;
+	protected Task<Workbook[]> task;
 	protected Thread threadTask;
 
 	protected Submission submission;
-	private String nameWorkbook;
+	//private String nameWorkbook;
+	
+	//public Workbook currentWorkbook;
 
-	public SubmissionService(ProgressBar progressBar,
-			Workbook selectedWorkbook,
-			TreeTableView<Group<?>> resultsTV,
-			SimpleLogger logger,
-			MainController main) {
-
-		this.nameWorkbook = selectedWorkbook.getName();
-		this.submission = new Submission(selectedWorkbook);
-
-		this.progressBar = progressBar;
-		this.resultsTTV = resultsTV;
+	public SubmissionService(SimpleLogger logger,
+			MainController main,
+			ProgressBar progressBar,
+			TreeTableView<Group<?>> resultsTTV,
+			Workbook[] arrayWorkbooks) {
 
 		this.logger = logger;
 		this.main = main;
+		this.progressBar = progressBar;
+		this.resultsTTV = resultsTTV;
+
+		this.submission = new Submission(arrayWorkbooks);
 
 	}
 
 	protected abstract void startThread();
 
 	@Override
-	protected Task<Map<String, Exercise>> createTask() {
+	protected Task<Workbook[]> createTask() {
 
-		onListenerListQuestionUpdated();
-		
 		this.task = new Task<>() {
 
 			@Override
-			protected Map<String, Exercise> call() throws Exception {
+			protected Workbook[] call() throws Exception {
 
 				try {
 
-					submission.testExercisesAll();
 
+					submission.getListListenerWorkbook().add((w) -> {
+						onListenerListQuestionUpdated(w);
+						logger.getInfos().add("Next workbook = " + w.getName());
+					});
+
+					Platform.runLater(() -> {
+						progressBar.progressProperty().bind(submission.getProgress().currentProgressProperty());
+						onListenerTextProgress();
+					});
+					// Submitting
+					
+					submission.testAllWorkbooks();
+				
+					Platform.runLater(() -> {
+					
+						if (progressBar.progressProperty().isBound())
+							progressBar.progressProperty().unbind();
+
+					});
+					
 				} catch (Exception e) {
 					
 					logger.getExceptions().add(
@@ -76,25 +91,16 @@ public abstract class SubmissionService extends Service<Map<String, Exercise>> {
 
 				}
 
-				return submission.getMapExercises();
+				return submission.getArrayWorkbooks();
 			}
 		};
 
 		this.threadTask = new Thread(this.task);
 		startThread();
 
-		/* Connect updates with controls */
-
-		progressBar.progressProperty().bind(this.submission.getProgress().currentProgressProperty());
-		
-		onListenerTextProgress();
-
-		//Property<ObservableList<Question>> property = new SimpleObjectProperty<>(this.submission.getData());
-		//resultsTTV.getRoot().valueProperty().bind(property);
-
 		return task;
 	}
-
+	
 	private void onListenerTextProgress() {
 
 		this.submission.getProgress().currentMessageProperty().addListener(
@@ -111,12 +117,12 @@ public abstract class SubmissionService extends Service<Map<String, Exercise>> {
 
 	}
 
-	private void onListenerListQuestionUpdated() {
+	private void onListenerListQuestionUpdated(Workbook workbook) {
 
 		// Try to find index of Workbook in TreeTableView resultsTTV
 		int i = 0, workbookId = -1;
 		for (TreeItem<Group<?>> itemWorkbook : main.resultsTTV.getRoot().getChildren()) { // For each workbook
-			if (itemWorkbook.getValue().getName().equals(nameWorkbook)) {
+			if (itemWorkbook.getValue().getName().equals(workbook.getName())) {
 				workbookId = i;
 				break;
 			}
@@ -124,17 +130,9 @@ public abstract class SubmissionService extends Service<Map<String, Exercise>> {
 		}
 		
 		if (workbookId == -1) { // If was not created Workbook
-			main.resultsTTV.getRoot().getChildren().add(new TreeItem<Group<?>>(this.submission.workbook));
+			main.resultsTTV.getRoot().getChildren().add(new TreeItem<Group<?>>(workbook));
 			workbookId = main.resultsTTV.getRoot().getChildren().size();
 		}
-		
-		MainController.helper.getChartController().cleanDataMain(); // Clear chart
-		
-		// Add new Question in Chart
-		submission.addListener((String exerciseName, Question q) ->
-				Platform.runLater(() ->
-					MainController.helper.getChartController().addDataInMain(exerciseName, q))
-			);
 
 	}
 	
@@ -155,7 +153,7 @@ public abstract class SubmissionService extends Service<Map<String, Exercise>> {
 				
 				entry = iterator.next();
 				
-				for (Question question : (Question[])entry.getValue().toArray())
+				for (Question question : entry.getValue())
 					details.append("\n")
 							.append(main.getResources().getString("messages.question.not.exist"))
 							.append(question.getName()) 
@@ -168,8 +166,6 @@ public abstract class SubmissionService extends Service<Map<String, Exercise>> {
 					"\n" + main.getResources().getString("messages.delete.create.question")).show();
 			
 		}
-	
-		MainController.helper.getChartController().installAllTooltips();
 	
 		super.succeeded();
 		

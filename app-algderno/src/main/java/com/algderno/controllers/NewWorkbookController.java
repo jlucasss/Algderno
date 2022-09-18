@@ -61,6 +61,8 @@ public class NewWorkbookController extends AbstractController {
 
 	private HelperNewWorkbookController helper;
 
+	private Workbook workbookNew;
+
 	@Override
 	public void init() {
 		
@@ -143,9 +145,9 @@ public class NewWorkbookController extends AbstractController {
 
 			}
 
-			MainController.mapWorkbooks.put(name, new Workbook(MainController.mapWorkbooks.size(), name, pathFolderRoot,
-								pathFileSolution, mapExercises, selected) );
-
+			this.workbookNew = new Workbook(MainController.mapWorkbooks.getMapData().size(), name, pathFolderRoot,
+								pathFileSolution, mapExercises, selected);
+			
 		} else
 			logger.getErrors().add(
 					resources.getString("error.some.data.not.correctly") ).show();
@@ -203,6 +205,10 @@ public class NewWorkbookController extends AbstractController {
 			
 		}
 
+	}
+
+	public Workbook getWorkbookNew() {
+		return this.workbookNew;
 	}
 
 }

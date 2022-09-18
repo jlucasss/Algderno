@@ -6,7 +6,7 @@ Algderno is an application with a graphical interface that aims to facilitate th
 
 It follows the idea of `Workbook`, where a `Workbook` contains a `List of Exercises` and an `Exercise` contains a `List of Questions`, however, for all questions, it only contains a solution file.
 
-![Printscreen](app-algderno/src/main/resources/com/algderno/images/printscreen.png)
+![Printscreen](app-algderno/src/main/resources/com/algderno/images/printscreen-with-informations.png)
 
 Note: This project is in an early version, although it works, there may be a better way to do it.
 

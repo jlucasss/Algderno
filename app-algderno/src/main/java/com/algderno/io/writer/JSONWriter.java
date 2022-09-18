@@ -2,9 +2,14 @@ package com.algderno.io.writer;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONObject;
 
+import com.algderno.models.Exercise;
+import com.algderno.models.Group;
+import com.algderno.models.Question;
 import com.algderno.models.Workbook;
 
 /**
@@ -34,16 +39,14 @@ public class JSONWriter {
 
 			Writer writer = new Writer(localSave + "/" + workbook.getName() + ".json");
 
-			JSONObject exercises = new JSONObject(workbook.getMapData());//convertExercisesToJSON();
-			
-			System.out.println("Workbook has " + workbook.getMapData().values().size() + " items");
+			JSONObject exercises = convertExercisesToJSON();
 			
 			workbook.getMapData().values().forEach((ex) -> {
 				System.out.println(ex.getName() + " has " + ex.getMapData().size() + "items");
 			});
 			
 			JSONObject output = new JSONObject();
-			output.put("Name", workbook.getName());
+			putCommumObjects(output, workbook);
 			output.put("PathFileSolution", workbook.getPathFileSolution());
 			output.put("PathRoot", workbook.getPathRoot());
 			output.put("ModelSelected", workbook.getModelSelected());
@@ -58,24 +61,31 @@ public class JSONWriter {
 		}
 
 	}
-/*
+
 	public JSONObject convertExercisesToJSON() {
 
 		Map<String, Exercise> map = workbook.getMapData();
 
-		JSONObject output = new JSONObject(map);
+		JSONObject output = new JSONObject();//map);
 
+		for (Entry<String, Exercise> entry : map.entrySet())
+			output.put(entry.getKey(), convertExerciseToJSON(entry.getValue()));
+		
 		return output;
 
-	}*/
-/*
+	}
+
 	public JSONObject convertExerciseToJSON(Exercise exercise) {
 
+		JSONObject questionsJSON = new JSONObject();
+		
+		for (Entry<String, Question> entry : exercise.getMapData().entrySet())
+			questionsJSON.put(entry.getKey(), convertQuestionToJSON(entry.getValue()));
+		
 		JSONObject output = new JSONObject();
-		output.put("Priority", exercise.getPriority());
-		output.put("Name", exercise.getName());
-		output.put("Questions", new JSONObject( exercise.getMapData() ) );
-
+		putCommumObjects(output, exercise);
+		output.put("Questions", questionsJSON);
+		
 		return output;
 
 	}
@@ -83,14 +93,18 @@ public class JSONWriter {
 	public JSONObject convertQuestionToJSON(Question question) {
 
 		JSONObject output = new JSONObject();
-
-		output.put("Priority", question.getPriority());
-		output.put("Name", question.getName());
+		putCommumObjects(output, question);
 		output.put("MapData", question.getMapData());
-		output.put("LastRuntime", question.getLastRuntime());
-		output.put("ResultCorrect", question.isResultCorrect());
-
+		output.put("MaxRuntime", question.getMaxRuntime());
+		
 		return output;
 	}
-*/
+	
+	private void putCommumObjects(JSONObject json, Group<?> group) {
+		json.put("Priority", group.getPriority());
+		json.put("Name", group.getName());
+		json.put("LastRuntime", group.getLastRuntime());
+		json.put("ResultCorrect", group.isResultCorrect());
+	}
+
 }

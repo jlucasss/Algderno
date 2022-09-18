@@ -25,61 +25,66 @@ import com.algderno.models.Group;
 import com.algderno.models.Question;
 import com.algderno.models.Workbook;
 
-import javafx.collections.ObservableMap;
-
 public class Submission {
 
-	private int idsSize;
-	private ObservableMap<String, Exercise> mapExercises;
 	private HashMap<String, List<Question>> nonexistent;
-	public final Workbook workbook, selectedWorkbook;
 	private Tester submit;
-	private List<ListenerSubmissionQuestion> listListener;
+	private List<ListenerGroup<Question>> listListenerQuestion;
+	private List<ListenerGroup<Exercise>> listListenerExercise;
+	private List<ListenerGroup<Workbook>> listListenerWorkbook;
 	
 	private ProgressSubmission progress;
+	private Workbook[] arrayWorkbooks;
 
-	public Submission(Workbook selectedWorkbook) {
+	public Submission(Workbook[] arrayWorkbooks) {
 
-		this.selectedWorkbook = selectedWorkbook;
+		this.arrayWorkbooks = arrayWorkbooks;
 		
-		this.workbook = MainController.mapWorkbooks.get(selectedWorkbook.getName());
-		this.mapExercises = workbook.getMapData();
 		this.submit = new Tester();
 		this.nonexistent = new HashMap<>();
-		this.listListener = new ArrayList<>();
+		this.listListenerQuestion = new ArrayList<>();
+		this.listListenerExercise = new ArrayList<>();
+		this.listListenerWorkbook = new ArrayList<>();
 
-		idsSize = this.mapExercises.size();
+		this.progress = new ProgressSubmission(arrayWorkbooks.length);
+
+	}
+
+	public void testAllWorkbooks() throws Exception {
 		
-		this.progress = new ProgressSubmission(idsSize);
-
-	}
-
-	public void addListener(ListenerSubmissionQuestion l) {
-		this.listListener.add(l);
+		for (Workbook workbook : this.arrayWorkbooks) {
+			
+			Workbook currentWorkbook = MainController.mapWorkbooks.getMapData().get(workbook.getName());
+			
+			listListenerWorkbook.forEach(c -> c.changed(currentWorkbook));
+			
+			testAllExercises(currentWorkbook);
+		
+		}
+		
 	}
 	
-	public List<ListenerSubmissionQuestion> getListListener() {
-		return this.listListener;
-	}
-	
-	public Workbook testExercisesAll() throws Exception {
+	private void testAllExercises(Workbook currentWorkbook) throws Exception {
 
-		//data.clear();
-		submit.prepare(MainController.pathDefault + "/" + selectedWorkbook.getName() + "/",
-				workbook.getPathFileSolution(),
-				workbook.getPathRoot());
+		Map<String, Exercise> mapExercises = currentWorkbook.getMapData();
+		
+		submit.prepare(MainController.pathDefault + "/" + currentWorkbook.getName() + "/",
+				currentWorkbook.getPathFileSolution(),
+				currentWorkbook.getPathRoot());
 
 		int numQuestions = 0, countExercises = 0;
 		long averageLastRuntime = 0;
 		boolean allCorrects = true;
 		
-		Exercise exercises[] = new Exercise[this.mapExercises.size()]; // Is necessary prepare array to toArray
-		this.mapExercises.values().toArray(exercises);
+		Exercise exercises[] = new Exercise[mapExercises.size()]; // Is necessary prepare array to toArray
+		mapExercises.values().toArray(exercises);
 		sortByPrority(exercises);
 		
 		for (Exercise currentExercise : exercises) {
 
-			if (! selectedWorkbook.getMapData().containsKey(currentExercise.getName())) { // If not selected Question
+			listListenerExercise.forEach(c -> c.changed(currentExercise));
+			
+			if (! currentWorkbook.getMapData().containsKey(currentExercise.getName())) { // If not selected Question
 
 				averageLastRuntime += currentExercise.getLastRuntime();
 				
@@ -93,9 +98,9 @@ public class Submission {
 			
 			this.progress.updateProgressExercise(currentExercise.getName(), countExercises);
 
-			numQuestions = this.mapExercises.get(currentExercise.getName()).getMapData().size();//idsSelected.get(countExercises).size();
+			numQuestions = mapExercises.get(currentExercise.getName()).getMapData().size();//idsSelected.get(countExercises).size();
 
-			testQuestionsAll(currentExercise, countExercises, numQuestions);
+			testQuestionsAll(currentWorkbook, currentExercise, countExercises, numQuestions);
 
 			if (allCorrects) // Verify the tested
 				allCorrects = currentExercise.isResultCorrect();
@@ -104,20 +109,18 @@ public class Submission {
 			
 		}
 
-		averageLastRuntime = averageLastRuntime / workbook.getMapData().size();
+		averageLastRuntime = averageLastRuntime / currentWorkbook.getMapData().size();
 
-		workbook.setLastRuntime(averageLastRuntime);
-		workbook.setResultCorrect(allCorrects); // If all exercises is corrects
+		currentWorkbook.setLastRuntime(averageLastRuntime);
+		currentWorkbook.setResultCorrect(allCorrects); // If all exercises is corrects
 		
 		// Too for update table
-		selectedWorkbook.setLastRuntime(averageLastRuntime);
-		selectedWorkbook.setResultCorrect(allCorrects);
-
-		return workbook;
+		currentWorkbook.setLastRuntime(averageLastRuntime);
+		currentWorkbook.setResultCorrect(allCorrects);
 
 	}
 
-	private void testQuestionsAll(Exercise currentExercise, int idExerciseList, int numQuestions) throws Exception {
+	private void testQuestionsAll(Workbook currentWorkbook, Exercise currentExercise, int idExerciseList, int numQuestions) throws Exception {
 		
 		// Sort values by Priority
 		Question questions[] = new Question[currentExercise.getMapData().size()];
@@ -132,15 +135,14 @@ public class Submission {
 			
 			priority = currentQuestion.getPriority();
 			
-			if (! selectedWorkbook.getMapData().get(currentExercise.getName()).getMapData().containsKey(currentQuestion.getName()) ) { // If not selected Question
+			if (! currentWorkbook.getMapData().get(currentExercise.getName()).getMapData().containsKey(currentQuestion.getName()) ) { // If not selected Question
 				
 				if (allCorrects) // Verify the not tested
 					allCorrects = currentQuestion.isResultCorrect();
 				
 				averageLastRuntime += currentQuestion.getLastRuntime();
 				
-				for (int i = 0; this.listListener.size() > i; i++)
-					this.listListener.get(i).changed(currentExercise.getName(), currentQuestion);
+				listListenerQuestion.forEach(c -> c.changed(currentQuestion));
 				
 				continue;
 			}
@@ -148,7 +150,7 @@ public class Submission {
 			this.progress.updateProgressQuestion(currentQuestion.getName(), 
 					priority, numQuestions, StatusProgress.PROCESSING);
 
-			if (testQuestion(currentExercise.getName(), currentQuestion)) {
+			if (testQuestion(currentWorkbook, currentExercise.getName(), currentQuestion)) {
 
 				this.progress.updateProgressQuestion(currentQuestion.getName(), 
 						priority, numQuestions, StatusProgress.TESTED);
@@ -163,8 +165,7 @@ public class Submission {
 			if (allCorrects) // Verify the tested
 				allCorrects = currentQuestion.isResultCorrect();
 			
-			for (int i = 0; this.listListener.size() > i; i++)
-				this.listListener.get(i).changed(currentExercise.getName(), currentQuestion);
+			listListenerQuestion.forEach(c -> c.changed(currentQuestion));
 			
 		}
 		
@@ -188,13 +189,13 @@ public class Submission {
 		});
 	}
 
-	private boolean testQuestion(String exerciseName, Question currentQuestion) throws Exception {
+	private boolean testQuestion(Workbook workbook, String exerciseName, Question currentQuestion) throws Exception {
 
-		if (!isExistsQuestion(exerciseName, currentQuestion))
+		if (!isExistsQuestion(workbook, exerciseName, currentQuestion))
 			return false;
 
 		submit.submit(currentQuestion);
-System.out.println("afterSubmit = " + currentQuestion.toString());
+
 		workbook.getMapData()
 					.get(exerciseName).getMapData()
 						.put(currentQuestion.getName(), currentQuestion);
@@ -203,11 +204,13 @@ System.out.println("afterSubmit = " + currentQuestion.toString());
 
 	}
 
-	public boolean isExistsQuestion(String exerciseName, Question currentQuestion) {
+	public boolean isExistsQuestion(Workbook workbook, String exerciseName, Question currentQuestion) {
 		if (
 			!(new File(workbook.getPathRoot()+currentQuestion.getMapData().get("pathInput")).exists()) &&
 			!(new File(workbook.getPathRoot()+currentQuestion.getMapData().get("pathOutputCorrect")).exists())
 		) {
+
+			System.out.println("PathRoot = " + workbook.getPathRoot()+currentQuestion.getMapData().get("pathInput"));
 
 			if (nonexistent.containsKey(exerciseName))
 				nonexistent.get(exerciseName).add(currentQuestion);
@@ -233,17 +236,25 @@ System.out.println("afterSubmit = " + currentQuestion.toString());
 		return this.progress;
 	}
 
-	public Map<String, Exercise> getMapExercises() {
-		return this.mapExercises;
-	}
-
 	public HashMap<String, List<Question>> getNonexistent() {
 		return this.nonexistent;
 	}
 
-	/*public Map<String, Exercise> getData() {
-		return this.data;
-	}*/
+	public Workbook[] getArrayWorkbooks() {
+		return arrayWorkbooks;
+	}
+
+	public List<ListenerGroup<Exercise>> getListListenerExercise() {
+		return listListenerExercise;
+	}
+
+	public List<ListenerGroup<Workbook>> getListListenerWorkbook() {
+		return listListenerWorkbook;
+	}
+
+	public List<ListenerGroup<Question>> getListListenerQuestion() {
+		return listListenerQuestion;
+	}
 
 }
 

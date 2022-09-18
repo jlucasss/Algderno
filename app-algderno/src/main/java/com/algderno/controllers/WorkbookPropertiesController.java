@@ -36,7 +36,7 @@ public class WorkbookPropertiesController extends AbstractController {
 	@Override
 	public void init() {
 
-		String[] arrayNamesWorkbook = (String[]) MainController.mapWorkbooks.keySet().toArray();
+		String[] arrayNamesWorkbook = (String[]) MainController.mapWorkbooks.getMapData().keySet().toArray();
 		
 		String nameWorkbook = App.getAlerts()
 									.boxChoice(resources.getString("message.reply"), 
@@ -46,7 +46,7 @@ public class WorkbookPropertiesController extends AbstractController {
 												Arrays.asList(arrayNamesWorkbook)
 												).get();
 		
-		workbook = MainController.mapWorkbooks.get(nameWorkbook);
+		workbook = MainController.mapWorkbooks.getMapData().get(nameWorkbook);
 
 		restoreAllOn();
 
@@ -134,9 +134,9 @@ public class WorkbookPropertiesController extends AbstractController {
 
 		if (isChanged()) {
 
-			MainController.mapWorkbooks.get(workbook.getName()).setName(getName());
-			MainController.mapWorkbooks.get(workbook.getName()).setPathRoot(getRoot());
-			MainController.mapWorkbooks.get(workbook.getName()).setPathFileSolution(getFileSolution());
+			MainController.mapWorkbooks.getMapData().get(workbook.getName()).setName(getName());
+			MainController.mapWorkbooks.getMapData().get(workbook.getName()).setPathRoot(getRoot());
+			MainController.mapWorkbooks.getMapData().get(workbook.getName()).setPathFileSolution(getFileSolution());
 
 		}
 

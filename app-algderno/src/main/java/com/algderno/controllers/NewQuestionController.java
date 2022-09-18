@@ -40,7 +40,7 @@ public class NewQuestionController extends AbstractController {
 				return;
 			}
 			
-			if (MainController.mapWorkbooks.containsKey(valueW)) { // If exist Workbook name
+			if (MainController.mapWorkbooks.getMapData().containsKey(valueW)) { // If exist Workbook name
 				
 					String valueE = nameExerciseCB.getValue();
 			
@@ -49,7 +49,7 @@ public class NewQuestionController extends AbstractController {
 						return;
 					}
 					
-					if (MainController.mapWorkbooks.get(valueW).getMapData().containsKey(valueE)) { // If exist Exercise name
+					if (MainController.mapWorkbooks.getMapData().get(valueW).getMapData().containsKey(valueE)) { // If exist Exercise name
 						
 						if (nameQuestionTF.getText().isEmpty()) {
 							updateStatus(Status.ERROR_SOME_EMPTY);
@@ -61,7 +61,7 @@ public class NewQuestionController extends AbstractController {
 							return;
 						}
 						
-						if (MainController.mapWorkbooks.get(valueW).getMapData().get(valueE).getMapData().containsKey(nameQuestionTF.getText())) // If exist Question name
+						if (MainController.mapWorkbooks.getMapData().get(valueW).getMapData().get(valueE).getMapData().containsKey(nameQuestionTF.getText())) // If exist Question name
 							updateStatus(Status.ERROR_NAME_QUESTION_EXIST);
 					}
 				}

@@ -48,7 +48,7 @@ public class HelperFilesController {
 
 		try {
 
-			String local = MainController.mapWorkbooks.get(workbookCurrent.getName()).getPathRoot();
+			String local = MainController.mapWorkbooks.getMapData().get(workbookCurrent.getName()).getPathRoot();
 
 			new Writer(local + controller.pathInput).writeLines(
 					Arrays.asList( inputTA.getText().split("\n") )
@@ -64,7 +64,7 @@ public class HelperFilesController {
 
 		}
 
-		MainController.helper.updateTreeView();
+		//MainController.helper.updateTreeView();
 
 		App.localStage.close();
 
@@ -98,7 +98,7 @@ public class HelperFilesController {
 
 		//Add in exercise
 
-		Map<String, Exercise> mapExercise = MainController.mapWorkbooks.get(nameWorkbook).getMapData();
+		Map<String, Exercise> mapExercise = MainController.mapWorkbooks.getMapData().get(nameWorkbook).getMapData();
 
 		//Find existing exercise
 		boolean hasExercise = mapExercise.containsKey(nameExercise);
@@ -131,7 +131,7 @@ public class HelperFilesController {
 
 		//Add in exercise
 
-		Exercise exercise = MainController.mapWorkbooks.get(nameWorkbook).getMapData().get(nameExercise); // Future edit
+		Exercise exercise = MainController.mapWorkbooks.getMapData().get(nameWorkbook).getMapData().get(nameExercise); // Future edit
 
 		exercise.addNewQuestion(question);
 

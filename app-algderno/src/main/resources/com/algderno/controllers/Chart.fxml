@@ -20,12 +20,12 @@
       </LineChart>
       <HBox layoutX="529.0" prefHeight="29.0" prefWidth="229.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
          <children>
-            <Button mnemonicParsing="false" onAction="#comparingOn" text="%button.compare">
+            <Button alignment="CENTER_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#comparingOn" text="%button.compare">
                <HBox.margin>
                   <Insets right="5.0" />
                </HBox.margin>
             </Button>
-            <Button alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#saveOn" styleClass="button-green" text="%button.save">
+            <Button alignment="CENTER_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#saveOn" styleClass="button-green" text="%button.save">
                <HBox.margin>
                   <Insets right="5.0" />
                </HBox.margin>

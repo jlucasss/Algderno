@@ -170,6 +170,16 @@ TreeView {
 
 }
 
+/* Chart */
+
+.default-color0.chart-pie {
+	-fx-pie-color: DARKGREEN;
+}
+
+.default-color1.chart-pie {
+	-fx-pie-color: DARKRED;
+}
+
 /* Footer */
 
 .text-process-bar {

@@ -4,6 +4,8 @@ import org.json.JSONObject;
 
 import com.algderno.controllers.NewWorkbookController.EnumModels;
 import com.algderno.models.Exercise;
+import com.algderno.models.Group;
+import com.algderno.models.Question;
 import com.algderno.models.Workbook;
 
 import javafx.collections.FXCollections;
@@ -23,8 +25,7 @@ public class JSONReader {
 			throw new NullPointerException("JSON cannot be null.");
 
 		JSONObject content = new JSONObject(json);
-
-		String name = content.getString("Name");
+		
 		String pathRoot = content.getString("PathRoot");
 		String pathFileSolution = content.getString("PathFileSolution");
 		EnumModels modelSelected =
@@ -35,62 +36,76 @@ public class JSONReader {
 				);
 
 		Workbook workbook = new Workbook
-				(-1, name, pathRoot, pathFileSolution,
+				(-1, "", pathRoot, pathFileSolution,
 						exercises, modelSelected);
 
+		recoverCommumObjects(content, workbook);
+		
 		return workbook;
 	}
 
 	public ObservableMap<String, Exercise> recoverExercisesMap(String jsonPart) {
 
-		ObservableMap<String, Exercise> exercises = FXCollections.emptyObservableMap();
-
-		new JSONObject(jsonPart).toMap()
-				.forEach((key, value) -> 
-					exercises.put(key, ((Exercise)value))
-		);
+		JSONObject content = new JSONObject(jsonPart);
+		
+		ObservableMap<String, Exercise> exercises = FXCollections.observableHashMap();
+		
+		for (String key : content.keySet())
+			exercises.put(
+					key, 
+					recoverExercise( content.get(key).toString() ) 
+			);
 		
 		return exercises;
 
 	}
-/*
+
 	public Exercise recoverExercise(String jsonPart) {
 
+		JSONObject content = new JSONObject(jsonPart);
+		
 		Exercise exercise = new Exercise();
 
-
-		JSONObject content = new JSONObject(jsonPart);
-
-		String name = content.getString("Name");
-		exercise.setName(name);
-
-		Map<String, Object> map = content.getJSONObject("Questions").toMap();
+		recoverCommumObjects(content, exercise);
+		
+		JSONObject map = content.getJSONObject("Questions");
 		
 		ObservableMap<String, Question> mapQuestions = FXCollections.observableHashMap();
-		map.forEach((key, value) -> mapQuestions.put(key, ((Question)value)) );
+		
+		for (String key : map.keySet())
+			mapQuestions.put(
+					key, 
+					recoverQuestion( map.get(key).toString() ) 
+			);
 		
 		exercise.setMapData(mapQuestions);
 
 		return exercise;
-	}*/
-/*
+	}
+
 	public Question recoverQuestion(String jsonPart) {
 
 		JSONObject content = new JSONObject(jsonPart);
-
-		int priority = content.getInt("Priority");
-		String name = content.getString("Name");
-		long lastRuntime = content.getLong("LastRuntime");
-		String pathInput = content.getString("PathInput");
-		String pathOutputCorrect = content.getString("PathOutputCorrect");
-		boolean resultCorrect = content.getBoolean("ResultCorrect");
+		
+		JSONObject mapData = new JSONObject(content.get("MapData").toString());
+		String pathInput = mapData.get("pathInput").toString(); 
+		String pathOutputCorrect = mapData.get("pathOutputCorrect").toString();
 		long maxRuntime = content.getLong("MaxRuntime");
 		
-		Question question = new Question(priority, name, pathInput, pathOutputCorrect,
-				lastRuntime, resultCorrect, maxRuntime);
+		Question question = new Question(-1, "", pathInput, pathOutputCorrect,
+				0, false, maxRuntime);
 
+		recoverCommumObjects(content, question);
+		
 		return question;
 
-	}*/
+	}
 
+	private void recoverCommumObjects(JSONObject json, Group<?> group) {
+		group.setPriority     ( Integer.parseInt(     json.get("Priority")     .toString()) );
+		group.setName         (                       json.get("Name")         .toString()  );
+		group.setLastRuntime  ( Long.parseLong(       json.get("LastRuntime")  .toString()) );
+		group.setResultCorrect( Boolean.parseBoolean( json.get("ResultCorrect").toString()) );
+	}
+	
 }

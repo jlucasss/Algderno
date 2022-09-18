@@ -12,10 +12,8 @@ package com.algderno.controllers;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import com.algderno.App;
 import com.algderno.App.Languages;
@@ -28,7 +26,7 @@ import com.algderno.io.reader.Reader;
 import com.algderno.models.Group;
 import com.algderno.models.Question;
 import com.algderno.models.Workbook;
-import com.algderno.models.util.SimpleGroup;
+import com.algderno.models.util.SelectedsList;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -40,7 +38,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
@@ -73,10 +73,16 @@ public class MainController extends AbstractController {
 	/* LEFT */
 
 	@FXML
+	public TitledPane treeTP;
+	
+	@FXML
 	public TreeView< String > treeTV;
 
 	/* CENTER */
 
+	@FXML
+	private TextArea consoleTA;
+	
 	@FXML
 	public AnchorPane infosAP;
 	
@@ -121,7 +127,7 @@ public class MainController extends AbstractController {
 
 	public static String path;
 
-	public static Map<String, Workbook> mapWorkbooks;
+	public static Group<Workbook> mapWorkbooks;
 
 	public static FilteredList<TreeItem<Group<?>>> filteredData;
 
@@ -142,7 +148,22 @@ public class MainController extends AbstractController {
 		
 		pathDefault = System.getProperty("user.dir");
 
-		mapWorkbooks = new HashMap<>();
+		mapWorkbooks = new Group<>(0, "Workbooks") {};//new HashMap<>();
+		
+		// Append messages in console
+		
+		logger.getInfos().addListener(
+				(atomic) -> 
+					consoleTA.appendText("\n[" + atomic.getDate() + "]: " + atomic.getMessage())
+				);
+		logger.getErrors().addListener(
+				(atomic) -> 
+					consoleTA.appendText("\n[" + atomic.getDate() + "]: " + atomic.getMessage())
+				);
+		logger.getExceptions().addListener(
+				(atomic) -> 
+					consoleTA.appendText("\n[" + atomic.getDate() + "]: " + atomic.getMessage())
+				);
 		
 		// ComboBox language fill
 		languageCB.getItems().setAll(FXCollections.observableArrayList(Languages.values()));
@@ -154,13 +175,22 @@ public class MainController extends AbstractController {
 
 		HBox.setHgrow(escapamentPane, Priority.ALWAYS);
 
-		infosMain = new InfosMain(infosAP, resources);
+		// Informations Workbooks
+		
+		try {		
+			
+			infosMain = new InfosMain(infosAP, this.logger);
+		
+		} catch (Exception e) {
+			logger.getExceptions().add(resources.getString("exception.could.not.open.screen"), e);
+			e.printStackTrace();
+		}
 		
 		// Set size selected items
-		treeTV.selectionModelProperty().addListener((l) ->
+		/*treeTV.selectionModelProperty().addListener((l) ->
 			infosMain.selecteds = 
 					treeTV.getSelectionModel().getSelectedIndices().size() 
-		);
+		);*/
 		
 		priorityTTC.setCellValueFactory(new TreeItemPropertyValueFactory<>("priority"));
 		nameTTC.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
@@ -222,9 +252,9 @@ public class MainController extends AbstractController {
 			
 		}
 
-		SimpleGroup selecteds = helper.createlistIdsSelected();
+		SelectedsList selecteds = new SelectedsList(treeTV.getRoot(), SelectedsList.ListType.HASH_MAP);
 
-		if (selecteds.mapWorkbook.size() <= 0) {
+		if (selecteds.getMapWorkbooks().isEmpty()) {
 
 			helper.updateProgressBarGroup(0.00F, resources.getString("text.finished"), "Ok");
 
@@ -240,55 +270,73 @@ public class MainController extends AbstractController {
 				resources.getString("text.after.finalized") );
 		
 		// Update data line "workbooks" of the table
-		Group<?> groupWorkbooks = (Group<?>) resultsTTV.getRoot().getValue();
+		@SuppressWarnings("unchecked")
+		Group<Workbook> groupWorkbooks = (Group<Workbook>) resultsTTV.getRoot().getValue();
 		groupWorkbooks.setLastRuntime(0);
 		groupWorkbooks.setResultCorrect(true);
 		
 		pauseB.setDisable(false);
 		stopB.setDisable(false);
 
-		for (Workbook value : selecteds.mapWorkbook.values())
-			runSelecteds(value, groupWorkbooks);
+		//infosMain.clearInfos();
+		
+		Workbook[] arrayWorkbook = new Workbook[selecteds.getMapWorkbooks().size()];
+		selecteds.getMapWorkbooks().values().toArray(arrayWorkbook);
 
+		// Sort workbooks by priority
+		Arrays.sort(arrayWorkbook, (o1,o2) ->
+				Integer.compare(o1.getPriority(), o2.getPriority()));
+		
+		runSelecteds(arrayWorkbook, mapWorkbooks);//groupWorkbooks);
+		
 	}
 
-	private void runSelecteds(Workbook selectedWorkbook, Group<?> groupWorkbooks) {
+	private void runSelecteds(Workbook[] arrayWorkbooks, Group<Workbook> groupWorkbooks) {
 
-		SubmissionThread service = new SubmissionThread(progressPB, selectedWorkbook,
-				resultsTTV, logger, this);
+		this.service = new SubmissionThread(
+														logger, 
+														this, 
+														progressPB, 
+														resultsTTV, 
+														arrayWorkbooks );
+		
+		//this.service.nextSubmission();
 
-		service.setOnSucceeded((success) -> {
-
-			progressPB.progressProperty().unbind();
-			//leftL.textProperty().unbind();
+		this.service.setOnSucceeded((success) -> {
 
 			/* In the future replace the flow: {"update* -> table -> filtered -> table"} to {"update* -> filtered -> table"} */
 
 			resultsTTV.getRoot().valueProperty().unbind();
 			filteredData = new FilteredList<TreeItem<Group<?>>>(resultsTTV.getRoot().getChildren());
 			
-			groupWorkbooks.setLastRuntime(
-					groupWorkbooks.getLastRuntime() 
-						+ 
-					(selectedWorkbook.getLastRuntime() / resultsTTV.getRoot().getChildren().size())
-				);
-			
-			if (groupWorkbooks.isResultCorrect())
-				groupWorkbooks.setResultCorrect(selectedWorkbook.isResultCorrect());
+			for (Workbook currentWorkbook : groupWorkbooks.getMapData().values()) {
 
+				// Update last runtime of groupWorkbooks
+				groupWorkbooks.setLastRuntime(
+						groupWorkbooks.getLastRuntime() 
+							+ 
+						(currentWorkbook.getLastRuntime() / resultsTTV.getRoot().getChildren().size())
+					);
+				
+				// Update result correct of groupWorkbooks
+				groupWorkbooks.setResultCorrect(
+						groupWorkbooks.isResultCorrect() &&
+						currentWorkbook.isResultCorrect()
+					);
+				
+			}
+			
 			resultsTTV.refresh();
 
 			helper.updateChart();
 
 			helper.updateProgressBarGroup(0.00F, resources.getString("text.finished"), "Ok");
-
-			// Update info messages
-			
-			infosMain.updateAllWorkbookInfos(resultsTTV.getRoot());
+	
+			runNextWorkbook(groupWorkbooks);
 			
 		});
 		
-		service.setOnFailed((failed) -> {
+		this.service.setOnFailed((failed) -> {
 
 			progressPB.progressProperty().unbind();
 			
@@ -297,16 +345,43 @@ public class MainController extends AbstractController {
 			logger.getExceptions().add(resources.getString("exception.unexpected.error.occurred"), e).show();
 			e.printStackTrace();
 			
+			runNextWorkbook(groupWorkbooks);
+			
 		});
 
-		service.setOnCancelled((caceled) -> {
+		this.service.setOnCancelled((caceled) -> {
+			
 			logger.getInfos().add("Cancelled.").show();
+			
+			runNextWorkbook(groupWorkbooks);
+			
 		});
 		
-		service.start();
+		this.service.start();
 		
 	}
 
+	private void runNextWorkbook(Group<Workbook> groupWorkbooks) {
+		//if (service.nextSubmission())
+		//	service.restart();
+		//else
+			finishedSubmissions(groupWorkbooks);
+	}
+
+	private void finishedSubmissions(Group<Workbook> groupWorkbooks) {
+		Platform.runLater(() -> {
+			
+			infosMain.updateGroupWorkbooks(treeTV.getRoot());
+			
+			// Disable all buttons
+			
+			stopB.setDisable(true);
+			pauseB.setDisable(true);
+			playB.setDisable(true);
+			
+		});
+	}
+	
 	/* MENU */
 
 	/* FILE */
@@ -316,10 +391,16 @@ public class MainController extends AbstractController {
 
 		String fxml = path + "NewWorkbook.fxml";
 
+		NewWorkbookController controller = null;
+		
 		try {
 
 			App.showScreen.setWait(true);
-			App.showScreen.simpleScreen(fxml, 500, 622, "New Workbook", "newworkbook");
+			App.showScreen.simpleScreen(fxml, 715, 480, "New Workbook", "newworkbook");
+			controller = App.showScreen.getLoader().getController();
+
+			if (controller != null)
+				helper.openWorkbook(controller.getWorkbookNew());
 			
 		} catch (Exception e) {
 
@@ -327,9 +408,6 @@ public class MainController extends AbstractController {
 			e.printStackTrace();
 
 		}
-
-		if (!MainController.mapWorkbooks.isEmpty())
-			helper.openWorkbooks();
 
 	}
 
@@ -355,14 +433,9 @@ public class MainController extends AbstractController {
 						new Reader(fileSelected.toString()).readLines().get(0)//All in one line
 					).getWorkbook();
 				
-				workbook.setPriority(MainController.mapWorkbooks.size());
+				workbook.setPriority(MainController.mapWorkbooks.getMapData().size());
 				
-				MainController.mapWorkbooks.put(workbook.getName(), workbook);
-
-				//MainController.pathTemporary = pathDefault + "/" +
-				//		mapWorkbooks.getName() + "/";
-
-				helper.openWorkbooks();
+				helper.openWorkbook(workbook);
 
 			} catch (Exception e) {
 			
@@ -422,10 +495,10 @@ public class MainController extends AbstractController {
 		List<String> options = new ArrayList<>();
 		options.add(resources.getString("messages.option.all"));
 		
-		System.out.println("SaveAs = " + mapWorkbooks.size());
+		System.out.println("SaveAs = " + mapWorkbooks.getMapData().size());
 		
-		String[] setOfKeys = new String[mapWorkbooks.keySet().size()];// This variable is necessary because casting(Object to String) not work
-		mapWorkbooks.keySet().toArray(setOfKeys);
+		String[] setOfKeys = new String[mapWorkbooks.getMapData().keySet().size()];// This variable is necessary because casting(Object to String) not work
+		mapWorkbooks.getMapData().keySet().toArray(setOfKeys);
 		
 		options.addAll(Arrays.asList(setOfKeys));
 		
@@ -441,7 +514,7 @@ public class MainController extends AbstractController {
 			return;
 
 		if (nameWorkbook.equals(options.get(0))) // If nameWorkbook == All
-			mapWorkbooks.keySet().forEach((key) -> helper.saveWorkbook(key));
+			mapWorkbooks.getMapData().keySet().forEach((key) -> helper.saveWorkbook(key));
 		else
 			helper.saveWorkbook(nameWorkbook);
 
@@ -599,12 +672,11 @@ public class MainController extends AbstractController {
 		
 		// Initializes and prepares
 
-		SimpleGroup selecteds = helper.createlistIdsSelected();
+		SelectedsList selecteds = new SelectedsList(treeTV.getRoot(), SelectedsList.ListType.LIST_TREE_ITEM); //helper.createlistIdsSelected();
 
 		StringBuilder list = new StringBuilder();
 
-		List<String> selectedsString = selecteds.toArrayString();
-		selectedsString.forEach( selected -> list.append(selected).append(")\n") );
+		selecteds.toArrayString().forEach( selected -> list.append(selected).append(")\n") );
 
 		// Create question App.alerts
 
@@ -628,17 +700,11 @@ public class MainController extends AbstractController {
 		// Make deletions depending on answer
 
 		if ( out.equals(answers[0]) )
-			selectedsString.forEach(s -> {
+			selecteds.getSelecteds().forEach(selected -> {
 
-				String[] split = s.split(";");
-				
-				String nameWorkbook = split[0],
-						nameExercise = split[1],
-						nameQuestion = split[2];
+				helper.deleteFromDisc(deleteFromDisc, selected);
 
-				helper.deleteFromDisc(deleteFromDisc, nameWorkbook, nameExercise, nameQuestion);
-
-				helper.removeFromTreeView(nameWorkbook, nameExercise, nameQuestion);
+				helper.removeFromTreeView(selected);
 
 			});
 

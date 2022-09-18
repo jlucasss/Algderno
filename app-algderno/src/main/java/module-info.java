@@ -9,6 +9,7 @@ module com.algderno {
 	opens com.algderno.controllers.helper to javafx.fxml;
 	opens com.algderno.controllers.subscreens to javafx.fxml;
 	opens com.algderno.models to javafx.base;
+	opens com.algderno.models.util to javafx.base;
 
 	requires com.jsubmeter;
 	requires org.json;

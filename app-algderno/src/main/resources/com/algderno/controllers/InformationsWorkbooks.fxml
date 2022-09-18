@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+
+<AnchorPane fx:id="mainAP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="180.0" prefWidth="1110.0" stylesheets="@../style-base.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algderno.controllers.InformationsWorkbooksController">
+   <children>
+      <SplitPane dividerPositions="0.5, 0.5" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="1110.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <items>
+          <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="365.0" minHeight="0.0" minWidth="300.0" prefHeight="202.0" prefWidth="365.0">
+               <children>
+                  <TabPane layoutX="5.0" layoutY="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <tabs>
+                        <Tab closable="false" text="%tab.title.workbook">
+                           <content>
+                              <HBox>
+                                 <children>
+                                    <TableView fx:id="workbookTV" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="165.0" prefHeight="200.0" prefWidth="165.0">
+                                      <columns>
+                                        <TableColumn fx:id="descriptionWorkbookTC" prefWidth="90.0" text="%table.column.description" />
+                                        <TableColumn fx:id="valuesWorkbookTC" prefWidth="74.0" text="%table.column.values" />
+                                      </columns>
+                                    </TableView>
+                                    <PieChart fx:id="workbookPC" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="179.0" prefWidth="182.0" />
+                                 </children>
+                              </HBox>
+                           </content>
+                        </Tab>
+                     </tabs>
+                  </TabPane>
+               </children>
+            </AnchorPane>
+            <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="365.0" minHeight="0.0" minWidth="300.0" prefHeight="160.0" prefWidth="365.0">
+               <children>
+                  <TabPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <tabs>
+                        <Tab closable="false" text="%tab.title.exercise">
+                           <content>
+                              <HBox>
+                                 <children>
+                                    <TableView fx:id="exerciseTV" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="165.0" prefHeight="200.0" prefWidth="182.0">
+                                       <columns>
+                                          <TableColumn fx:id="descriptionExerciseTC" prefWidth="90.0" text="%table.column.description" />
+                                          <TableColumn fx:id="valuesExerciseTC" prefWidth="74.0" text="%table.column.values" />
+                                       </columns>
+                                    </TableView>
+                                    <PieChart fx:id="exercisePC" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" />
+                                 </children>
+                              </HBox>
+                           </content>
+                        </Tab>
+                     </tabs>
+                  </TabPane>
+               </children>
+            </AnchorPane>
+            <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="365.0" minHeight="0.0" minWidth="300.0" prefHeight="160.0" prefWidth="365.0">
+               <children>
+                  <TabPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <tabs>
+                        <Tab closable="false" text="%tab.title.question">
+                           <content>
+                              <HBox>
+                                 <children>
+                                    <TableView fx:id="questionTV" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="182.0">
+                                       <columns>
+                                          <TableColumn fx:id="descriptionQuestionTC" prefWidth="90.0" text="%table.column.description" />
+                                          <TableColumn fx:id="valuesQuestionTC" prefWidth="74.0" text="%table.column.values" />
+                                       </columns>
+                                    </TableView>
+                                    <PieChart fx:id="questionPC" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" />
+                                 </children>
+                              </HBox>
+                           </content>
+                        </Tab>
+                     </tabs>
+                  </TabPane>
+               </children>
+            </AnchorPane>
+         </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

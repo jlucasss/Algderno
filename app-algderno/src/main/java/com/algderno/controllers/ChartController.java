@@ -3,6 +3,7 @@ package com.algderno.controllers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.algderno.App;
@@ -10,7 +11,6 @@ import com.algderno.controllers.helper.HelperChartController;
 import com.algderno.controllers.helper.data.SeriesQuestion;
 import com.algderno.io.reader.JSONReader;
 import com.algderno.io.reader.Reader;
-import com.algderno.models.Question;
 import com.algderno.models.Workbook;
 
 import javafx.fxml.FXML;
@@ -37,28 +37,44 @@ public class ChartController extends AbstractController {
 
 	private String nameChart;
 
-	private SeriesQuestion series;
-
+	private HashMap<String, SeriesQuestion> mapSeries;
+	
+	public static String textExercise = "", textQuestion = "", textLastRuntime = "";
+	
 	@Override
 	public void init() {
+
+		helper = new HelperChartController(this, resources, logger); 
+		
+		nameChart = resources.getString("label.title");//MainController.mapWorkbooks.getName();
+		lineChart.setTitle(nameChart);
+		
+		xAxis.setAutoRanging(true);
+		yAxis.setForceZeroInRange(false);
+		lineChart.autosize();
+		
+		textExercise = resources.getString("legend.text.exercise");
+		textQuestion = resources.getString("legend.text.question");
+		textLastRuntime = resources.getString("legend.text.last.runtime");
+		
 	}
 	
 	public void initChartWithWorkbook(Workbook workbook) {
-		nameChart = "";//MainController.mapWorkbooks.getName();
 
-		helper = new HelperChartController(this, resources, logger); 
+		if (this.mapSeries == null)
+			this.mapSeries = new HashMap<>();
+		
+		SeriesQuestion serieQuestion = new SeriesQuestion(workbook.getName(), workbook.getMapData(), this.resources);
+		
+		this.mapSeries.put(workbook.getName(), serieQuestion);
 
-		lineChart.setTitle(nameChart);
-
-		this.series = new SeriesQuestion(nameChart, workbook.getMapData());
-
-		lineChart.getData().add(this.series.getSeries());
+		lineChart.getData().add(serieQuestion.getSeries());
 
 		try {
-			this.series.installTooltipAll();
+			serieQuestion.installTooltipAll();
 		} catch (Exception e) {
 
-			logger.getExceptions().add(/*resources.getString("exception.could.not.install.tooltip")*/"", e).show();
+			logger.getExceptions().add(resources.getString("exception.could.not.install.tooltip"), e).show();
 			e.printStackTrace();
 
 		}
@@ -82,9 +98,9 @@ public class ChartController extends AbstractController {
 
 		File fileSelected = fileChooser.showOpenDialog(App.localStage);
 
-		if (fileSelected == null) {
+		if (fileSelected == null) 
 			return;
-		}
+		
 		// Verify if was openned
 		if (openedsWorkbooks.contains(fileSelected.toString())) {
 
@@ -105,7 +121,7 @@ public class ChartController extends AbstractController {
 			// Add in chart
 
 			SeriesQuestion openedSeries = new SeriesQuestion(workbookModel.getName(), 
-									workbookModel.getMapData());
+									workbookModel.getMapData(), this.resources);
 
 			lineChart.getData().add(openedSeries.getSeries());
 
@@ -139,9 +155,20 @@ public class ChartController extends AbstractController {
 		if (localFile == null)
 			return;
 
-		if ( result.contains(namesOptions[0]) )
-			helper.saveCSV(series.getDatasPopup(), (localFile + "/" + nameChart + ".csv") );
-
+		if ( result.contains(namesOptions[0]) ) {
+			
+			String[] namesCharts = new String[mapSeries.size()];
+			mapSeries.keySet().toArray(namesCharts);
+		
+			List<String> resultCSV = App.getAlerts().confirmationWithSeveralCheckbox(
+						resources.getString("messages.reply"), 
+						resources.getString("messages.do.you"), 
+						resources.getString("messages.want.save"),
+						namesCharts);
+			
+			helper.saveCSV(mapSeries.get(resultCSV.get(0)).getDatasPopup(), (localFile + "/" + nameChart + ".csv") );
+		}
+		
 		if ( result.contains(namesOptions[1]) )
 			helper.savePNG( lineChart, (localFile + "/" + nameChart + ".png") );
 
@@ -155,19 +182,19 @@ public class ChartController extends AbstractController {
 	}
 
 	/* About SeriesQuestion */
-
+/*
 	public void cleanDataMain() {
 		this.series.clear();
 	}
 
 	public void addDataInMain(String exerciseName, Question question) {
 		this.series.addCurrentData(exerciseName, question);
-	}
+	}*/
 
-	public void installAllTooltips() {
+	public void installAllTooltips(SeriesQuestion series) {
 
 		try {
-			this.series.installTooltipAll();
+			series.installTooltipAll();
 		} catch (Exception e) {
 
 			logger.getExceptions().add(/*resources.getString("exception.could.not.install.tooltip")*/"", e).show();

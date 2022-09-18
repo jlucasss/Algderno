@@ -1,134 +1,181 @@
 package com.algderno.controllers.helper.data.info;
 
-import java.util.HashMap;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.ResourceBundle;
 
-import com.algderno.App;
+import com.algderno.controllers.InformationsWorkbooksController;
+import com.algderno.controllers.MainController;
 import com.algderno.models.Exercise;
 import com.algderno.models.Group;
-import com.algderno.models.Question;
 import com.algderno.models.Workbook;
+import com.algderno.util.ShowScreen;
+import com.algderno.util.logger.SimpleLogger;
 
-import javafx.collections.ObservableMap;
-import javafx.event.EventHandler;
-import javafx.scene.control.ScrollPane;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.Parent;
+import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.TreeItem;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class InfosMain {
 
-	private AnchorPane anchorPane;
-	public static ResourceBundle resources;
-	private Map<String, WorkbookInfos> mapInfos;
-	private WorkbookInfos general;
-	public int selecteds;
+	List<Map<String, SimpleStringProperty>> listGenerals;
+	List<Map<String, SimpleDoubleProperty>> listCharts;
+	private InformationsWorkbooksController controller;
+	private SimpleLogger logger;
 	
-	public InfosMain(AnchorPane anchorPane, ResourceBundle resources) {
-		
-		this.anchorPane = anchorPane;
-		InfosMain.resources = resources;
-		this.selecteds = 0;
-		
-		this.mapInfos = new HashMap<>();
-		
-		this.general = new WorkbookInfos("General", 0, 0, 0);
+	public InfosMain(AnchorPane anchorPane, SimpleLogger logger) throws Exception {
 
-		anchorPane.getChildren().add(this.general.createGridPane());
+		this.logger = logger;
 		
-		anchorPane.setOnMouseClicked(opeAlertnMapInfos());
+		// Create screen chart
+		
+		ShowScreen screen = new ShowScreen(new Stage());
+		
+		Parent parent = screen.findFXML(MainController.path + "InformationsWorkbooks.fxml", "informationsworkbooks");
+		AnchorPane.setTopAnchor(parent, 0.0);
+		AnchorPane.setBottomAnchor(parent, 0.0);
+		AnchorPane.setLeftAnchor(parent, 0.0);
+		AnchorPane.setRightAnchor(parent, 0.0);
+		
+		anchorPane.getChildren().add(parent);	
+		
+		this.controller = screen.getLoader().getController();
+
+		createListInfos();
 		
 	}
 
-	/* Show all WorkbookInfos in alert with scroll */
-	private EventHandler<? super MouseEvent> opeAlertnMapInfos() {
-
-		return ((mouseEvent) -> {
-
-			VBox vbox = new VBox();
-			vbox.getChildren().add(anchorPane);
-			
-			mapInfos.forEach((key, value) -> 
-								vbox.getChildren().add(value.createGridPane()));
-			
-			App.getAlerts().alertWithContent(
-					resources.getString("text.info.title"), 
-					resources.getString("text.info.subtitle"), 
-					resources.getString("text.info.message"),
-					new ScrollPane(vbox));
-			
-		});
-
+	private void createListInfos() {
+		// Create variables with info
+		
+		this.listGenerals = new ArrayList<>();
+		this.listCharts = new ArrayList<>();
+		
+		for (int i = 0; 3 > i; i++) { // Is 3 because is to Workbook, Exercise and Question
+			listGenerals.add(
+					Map.<String, SimpleStringProperty>of(
+									this.controller.nameCountAverage, new SimpleStringProperty("0"), 
+									this.controller.nameCountChecked, new SimpleStringProperty("0"),
+									this.controller.nameCountTotal, new SimpleStringProperty("0"))
+					);
+			listCharts.add(
+					Map.<String, SimpleDoubleProperty>of(
+							this.controller.nameCountCorrect, new SimpleDoubleProperty(0.0), 
+							this.controller.nameCountIncorrect, new SimpleDoubleProperty(0.0) )
+					);
+		}
+		
+		this.controller.fillBindInformations(
+				this.listGenerals.get(0), this.listCharts.get(0), 
+				this.listGenerals.get(1), this.listCharts.get(1),
+				this.listGenerals.get(2), this.listCharts.get(2)
+			);
+		
 	}
 
-	/* Update all WorkbookInfos */
-	public void updateAllWorkbookInfos(TreeItem<Group<?>> rootWorkbooks) {
+	/*
+	 * No has updateQuestions because updateExercise exists
+	 * */
 
-		if (this.mapInfos.size() > 0)
-			this.mapInfos.clear();
+	private void clearInfos() {
+		listGenerals.forEach(
+				(m) -> 
+						m.values().forEach(
+							(info) -> info.set("0")
+						)
+				);
 		
-		this.general.updateInfos(0, 0, 0);
+		listCharts.forEach(
+				(m) ->
+					m.values().forEach(
+						(pie) -> pie.set(0.0)
+					)
+				);
+	}
+	
+	public void updateGroupWorkbooks(TreeItem<String> treeItem) {
 		
-		int amountExercise = 0, 
-				amountQuestion = 0, 
-				amountCorrect = 0,
-				generalAmountExercise = 0, 
-				generalAmountQuestion = 0, 
-				generalAmountCorrect = 0;
+		clearInfos();
 		
-		for (TreeItem<Group<?>> itemWorkbook : rootWorkbooks.getChildren()) {
-			
-			ObservableMap<String, Exercise> mapExercise = ((Workbook)itemWorkbook.getValue()).getMapData();
+		logger.getInfos().add("Workbooks size = " + MainController.mapWorkbooks.getMapData().size());
+		
+		for (Workbook w : MainController.mapWorkbooks.getMapData().values())
+			logger.getInfos().add("Before = Workbook " + w.getName() + "; Is = " + w.isResultCorrect());
+		
+		for (TreeItem<String> child : treeItem.getChildren())
+			updateWorkbook(child, MainController.mapWorkbooks.getMapData().get(child.getValue()));
 
-			//Amount exercises, questions and correct questions
-			amountExercise = 0;
-			amountQuestion = 0;
-			amountCorrect = 0;
-			for (Entry<String, Exercise> exercise : mapExercise.entrySet()) { // for each exercise
-				
-				amountExercise++;
-				
-				for (Entry<String, Question> question : exercise.getValue().getMapData().entrySet()) { // for each question
-					
-					amountQuestion++;
-					if (question.getValue().isResultCorrect())
-						amountCorrect++;
-					
-				}
-				
-			}
+		// Ever after for each Workbook
+		updateInformationOf(0, treeItem, MainController.mapWorkbooks); // Workbook
+		
+		for (Workbook w : MainController.mapWorkbooks.getMapData().values())
+			logger.getInfos().add("After = Workbook " + w.getName() + "; Is = " + w.isResultCorrect());
+		logger.getInfos().add("\n\n");
+		
+	}
+	
+	private void updateWorkbook(TreeItem<String> treeItem, Workbook workbook) {
 
-			// Update content map of WorkbookInfos
-			updateMapInfos(amountExercise, amountQuestion, amountCorrect, 
-							itemWorkbook.getValue().getName());
+		for (TreeItem<String> child : treeItem.getChildren())
+			updateExercise(child, workbook.getMapData().get(child.getValue()));
+
+		// After for each Exercise
+		updateInformationOf(1, treeItem, workbook);
+		
+	}
+	
+	private void updateExercise(TreeItem<String> treeItem, Exercise exercise) {
+		
+		updateInformationOf(2, treeItem, exercise);
+		
+	}
+	
+	/*
+	 * Extract new informations by TreeItem and Group
+	 * */
+	private void updateInformationOf(int type, TreeItem<String> treeItem, 
+									Group<?> group) {
+
+		int countTotal = Integer.parseInt( listGenerals.get(type).get(this.controller.nameCountTotal).get() ), 
+				countCorrect = (int) listCharts.get(type).get(this.controller.nameCountCorrect).get(), 
+				countIncorrect = (int) listCharts.get(type).get(this.controller.nameCountIncorrect).get(), 
+				checked = Integer.parseInt( listGenerals.get(type).get(this.controller.nameCountChecked).get() );
+		
+		BigDecimal averageRuntime = new BigDecimal(listGenerals.get(type).get(this.controller.nameCountAverage).get());
+		
+		for (TreeItem<String> subItem : treeItem.getChildren()) {
 			
+			countTotal++;
 			
-			//Update infos of this.general
-			generalAmountExercise += amountExercise;
-			generalAmountQuestion += amountQuestion;
-			generalAmountCorrect += amountCorrect;
+			if (group.isResultCorrect())
+				countCorrect++;
+			
+			if ( ((CheckBoxTreeItem<String>)subItem).isSelected() )
+				checked++;
+			
+			averageRuntime = averageRuntime.add(new BigDecimal(group.getLastRuntime()));
 			
 		}
-
-		this.general.updateInfos(generalAmountExercise, generalAmountQuestion, generalAmountCorrect);
 		
+		if (countTotal != 0)
+			averageRuntime = averageRuntime.divide(new BigDecimal(countTotal), RoundingMode.HALF_UP);
+		
+		countIncorrect += (countTotal - countCorrect);
+		
+		// Update global variables
+		
+		listGenerals.get(type).get(this.controller.nameCountAverage).set(averageRuntime.toString());
+		listGenerals.get(type).get(this.controller.nameCountChecked).set(checked + "");
+		listGenerals.get(type).get(this.controller.nameCountTotal).set(countTotal + "");
+		
+		listCharts.get(type).get(this.controller.nameCountCorrect).set(countCorrect);
+		listCharts.get(type).get(this.controller.nameCountIncorrect).set(countIncorrect);
 	}
-
-	private void updateMapInfos(int amountExercise, int amountQuestion, int amountCorrect, String nameWorkbook) {
-		
-		if (this.mapInfos.containsKey(nameWorkbook)) // If exist
-			this.mapInfos.get(nameWorkbook).updateInfos(amountExercise, amountQuestion, amountCorrect);
-		else {
-		
-			this.mapInfos.put(nameWorkbook, new WorkbookInfos(nameWorkbook,
-					amountExercise, amountQuestion, amountCorrect));
-		
-			this.mapInfos.get(nameWorkbook).createGridPane();
-			
-		}
-	}	
 	
 }

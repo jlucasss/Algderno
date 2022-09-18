@@ -28,7 +28,7 @@ public class LogException extends AbstractLog {
 	@Override
 	public AbstractLog add(String str) {
 
-		list.addLast(str);
+		list.addLast(new AtomicLog(currentDate(), str));
 
 		this.lastThrowable = null;
 
@@ -40,9 +40,9 @@ public class LogException extends AbstractLog {
 
 		this.lastThrowable = e;
 
-		str = str + "Error menssage:" + e.getMessage();
+		str = str + "Error menssage: " + e.getMessage();
 
-		list.addLast(str);
+		list.addLast(new AtomicLog(currentDate(), str));
 
 		return this;
 

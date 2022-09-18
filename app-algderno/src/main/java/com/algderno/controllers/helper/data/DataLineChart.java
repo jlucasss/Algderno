@@ -1,24 +1,7 @@
 package com.algderno.controllers.helper.data;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import com.algderno.controllers.helper.HelperChartController;
-import com.algderno.models.Exercise;
-import com.algderno.models.Question;
-import com.algderno.models.util.DataPopup;
-import com.algderno.util.logger.SimpleLogger;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.chart.XYChart;
-
 public class DataLineChart {
-
+/*
 	private SimpleLogger logger;
 
 	private String nameChart;
@@ -150,6 +133,6 @@ System.out.println("d1 = "+ yValue1 + " d2 = " + yValue1 + " - " + new BigDecima
 	public List<DataPopup> getDatasPopup() {
 		return datasPopup;
 	}
-
+*/
 }
 
